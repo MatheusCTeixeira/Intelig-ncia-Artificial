@@ -1,6 +1,7 @@
 
 import modelo 
 import copy
+from PIL import Image, ImageDraw
 
 #--Representa um nó
 class No:
@@ -37,6 +38,9 @@ def estadoRepetido(listaDeNos, no):
 
 #--Busca uma solução para o problema
 def busca(Einicial, Eobjetivo, metodo):
+
+    #Remove a soluçao anterior
+    Nos.clear()
 
     #A principio, inicia somente com o estado inicial, ou seja, o nó raiz
     noInicial = No(None, [], modelo.E0)
@@ -94,17 +98,48 @@ def busca(Einicial, Eobjetivo, metodo):
 
 def solucao(tabelaDeNos):
     solucao = []
-    
+
     no = tabelaDeNos[len(tabelaDeNos) - 1]
     while (no != None):
         solucao.insert(0, no.estado)
         no = no.noPai
-
-    Nos.clear()
-    
+       
     return solucao
 
+#def desenharEstado(E, imagem, xy, wh):
+#    dr = ImageDraw.Draw(imagem)
+#
+#    # Parâmetros para o desenho
+#    x,y = xy
+#    w, h = wh
+#    dx, dy = w/3, h/3
+#
+#    # Desenha elemento a elemento do estado E
+#    for lin in E:
+#        for value in lin:
+#            dr.text((x + dx/2, y + dy/2), str(value), fill=(0, 0, 255))
+#            dr.rectangle((x, y, x + dx, y + dy), outline=(0, 0, 0))
+#            x = x + dx
+#
+#        x = xy[0]
+#        y = y + dy
+            
+
+def gerarImagemSolucao(solucao):
+    imagem = Image.new("RGB", (len(solucao) * 100, 100), color="white")
+    
+    x = 0
+    for estado in solucao:
+        modelo.desenharEstado(estado, imagem, (x + 5, 5), (90, 90))
+        x = x + 100
+
+    imagem.save("solucao.png")
+
 #resultado = busca(modelo.E0, modelo.Eobj, "largura")
+
+#print(resultado)
+
+#gerarImagemSolucao(solucao(Nos))
 
 #if (resultado):
 #    for no in Nos:

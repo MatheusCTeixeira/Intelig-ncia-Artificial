@@ -85,7 +85,9 @@ def processa(metodo):
     #print(E0)
     if busca.busca(modelo.E0, modelo.Eobj, metodo):
         print("Solucao encontrada")
-        print(busca.solucao(busca.Nos))
+        solucao = busca.solucao(busca.Nos)
+        print(solucao)
+        busca.gerarImagemSolucao(solucao)
     
 
 app.startLabelFrame("Controle")

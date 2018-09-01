@@ -1,6 +1,9 @@
 
+from PIL import Image, ImageDraw
+
+
 #--Estado inicial
-E0 =  [ ['x',2,1] ,  [4,5,3] , [7,8,6]]
+E0 =  [ [3,2,'x'] ,  [1,4,5] , [7,8,6]]
 
 #--Estado final
 Eobj = [ [1,2,3] ,  [4,5,6] , [7,8,'x']]
@@ -87,6 +90,26 @@ def estadosIguais(Ea, Eb):
     
     return True
 #------------------------------------------------
+
+# Desenha o estado
+def desenharEstado(E, imagem, xy, wh):
+    dr = ImageDraw.Draw(imagem)
+
+    # Parâmetros para o desenho
+    x,y = xy
+    w, h = wh
+    dx, dy = w/3, h/3
+
+    # Desenha elemento a elemento do estado E
+    for lin in E:
+        for value in lin:
+            dr.text((x + dx/2, y + dy/2), str(value), fill=(0, 0, 255))
+            dr.rectangle((x, y, x + dx, y + dy), outline=(0, 0, 0))
+            x = x + dx
+
+        x = xy[0]
+        y = y + dy
+
            
 # print(listarAcoes(E0))
 # executarAcao(E0, "up")
