@@ -1,6 +1,7 @@
 
 import modelo 
 import copy
+import math
 from PIL import Image, ImageDraw
 
 #--Representa um nó
@@ -37,8 +38,7 @@ def estadoRepetido(listaDeNos, no):
     return False
 
 #--Busca uma solução para o problema
-def busca(Einicial, Eobjetivo, metodo):
-
+def busca(Einicial, Eobjetivo, metodo, maxiteracoes = 10000):
     #Remove a soluçao anterior
     Nos.clear()
 
@@ -50,14 +50,17 @@ def busca(Einicial, Eobjetivo, metodo):
     #A memória guarda os estados para fins de algoritmo
     memoria = [noInicial]
 
-
-    possuiSolucao = False
+    possuiSolucao = None
     iteracoes = 0
-    profundidade = 1
-    largura = 1
+    #profundidade = 1
+    largura = 0
+
+    #Teste inicial...
+    if (modelo.estadosIguais(Einicial, Eobjetivo)):
+        possuiSolucao = largura
 
     #Processa a memória até obter a solução
-    while ((len(memoria) > 0 and possuiSolucao == False) and iteracoes < 10000):
+    while ((len(memoria) > 0 and possuiSolucao == None) and iteracoes < maxiteracoes):
         #Recupera um nó da memória de acordo com o algoritmo
         no = recuperarNo(memoria, metodo)
         #A partir do nó, obter estado
@@ -65,10 +68,12 @@ def busca(Einicial, Eobjetivo, metodo):
         
         #Obtém todas as ações possíveis do estado atual
         acoes = modelo.listarAcoes(estado)
+        #print(str(profundidade))
+        #print(acoes)
 
         #Atualiza os parametros da solução
         if len(acoes) > 0:
-            profundidade = profundidade + 1
+            #profundidade = profundidade + 1
             largura = max(largura, len(acoes))
 
         for acao in acoes:
@@ -89,13 +94,14 @@ def busca(Einicial, Eobjetivo, metodo):
             Nos.append(novoNo)
 
             if (modelo.estadosIguais(novoEstado, Eobjetivo)):
-                possuiSolucao = True
+                possuiSolucao = largura
                 break
 
             iteracoes = iteracoes + 1
 
     return possuiSolucao
 
+#Obter os passos que levam a solução
 def solucao(tabelaDeNos):
     solucao = []
 
@@ -124,7 +130,7 @@ def solucao(tabelaDeNos):
 #        x = xy[0]
 #        y = y + dy
             
-
+#Gera uma imagem para facilitar a visualização da solução
 def gerarImagemSolucao(solucao):
     imagem = Image.new("RGB", (len(solucao) * 100, 100), color="white")
     

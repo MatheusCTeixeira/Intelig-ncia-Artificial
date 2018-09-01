@@ -3,7 +3,7 @@ from PIL import Image, ImageDraw
 
 
 #--Estado inicial
-E0 =  [ [3,2,'x'] ,  [1,4,5] , [7,8,6]]
+E0 =  [ [1,2,3] ,  [4,5,'x'] , [7,8,6]]
 
 #--Estado final
 Eobj = [ [1,2,3] ,  [4,5,6] , [7,8,'x']]
