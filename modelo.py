@@ -1,94 +1,48 @@
 
 from PIL import Image, ImageDraw
-
+import copy
+import busca
 
 #--Estado inicial
-E0 =  [ [1,2,3] ,  [4,5,'x'] , [7,8,6]]
+E0 =  ("A", 0)
 
 #--Estado final
-Eobj = [ [1,2,3] ,  [4,5,6] , [7,8,'x']]
+Eobj = ("J", None)
 
 
-#-- Procura a posição atual
-def posicaoAtual(Et):    
-    lin, col = 0, 0    
-    for lines  in Et:        
-        for element in lines: 
-            if (element == 'x'):
-                return (lin, col)
-            else:
-                col = col + 1
-        lin = lin + 1      
-        col = 0
-#------------------------------------------------
-
+Movimentos = {"S":[("B", 1) , ("C", 3)],\
+              "B":[("C", 1) , ("D", 4)],\
+              "C":[("D", 2) , ("E", 2)],\
+              "D":[("E", 4) , ("G", 3)],\
+              "E":[("G", 1)           ],\
+              "G":[                   ]\
+}
 
 #--Lista todos as possiveis ações para determinado estado
 def listarAcoes(Et):
 
-    acoesPossiveis = []
-
-    posicao = posicaoAtual(Et)
-    
-    lin, col = posicao
-   
-    if (lin > 0):
-        acoesPossiveis.append("up")
-
-    if (lin < 2):
-        acoesPossiveis.append("down")
-
-    if (col > 0): 
-        acoesPossiveis.append("left")
-
-    if (col < 2): 
-        acoesPossiveis.append("right")
+    #Todos os movimentos possíveis a partir deste nó
+    acoesPossiveis = Movimentos[Et[0]]
 
     return acoesPossiveis
 #------------------------------------------------
 
-
-
-#--Troca duas posições
-def trocaPosicao(Et, p0, p1):
-    l0, c0 = p0
-    l1, c1 = p1
-
-    # swap
-    Et[l0][c0], Et[l1][c1] = Et[l1][c1], Et[l0][c0]
-#------------------------------------------------
-
-
-
 #--Executar ações
 def executarAcao( Et, acao):
-    posAt = posicaoAtual(Et)
-    lin, col = posAt
+    #Custo acumulado
+    custo = acao[1] + Et[1]
+    estado = acao[0]
 
-    if (acao == "up"):
-        trocaPosicao(Et, posAt, (lin - 1, col))
-
-    if (acao == "down"):
-        trocaPosicao(Et, posAt, (lin + 1, col))
-
-    if (acao == "left"):
-        trocaPosicao(Et, posAt, (lin, col - 1))
-
-    if (acao == "right"):
-        trocaPosicao(Et, posAt, (lin, col + 1))
-   
+    return (estado, custo)
+           
 #------------------------------------------------
 
 #--Compara igualdade de estados
 # **** É possivel associar um inteiro a cada estado e
 # **** assim a comparação seria direta
 def estadosIguais(Ea, Eb):
-    for lin in range(len(Ea)):
-        for col in range(len(Ea[0])):
-            if (Ea[lin][col] != Eb[lin][col]):
-                return False
-    
-    return True
+     
+    return Ea[0] == Eb[0]
 #------------------------------------------------
 
 # Desenha o estado
@@ -110,22 +64,22 @@ def desenharEstado(E, imagem, xy, wh):
         x = xy[0]
         y = y + dy
 
-           
-# print(listarAcoes(E0))
-# executarAcao(E0, "up")
-# print(E0)
-# 
-# executarAcao(E0, "left")
-# print(E0)
-# 
-# executarAcao(E0, "down")
-# print(E0)
-# 
-# executarAcao(E0, "up")
-# executarAcao(E0, "right")
-# executarAcao(E0, "down")
-# print(E0)
-# 
-# print(listarAcoes(E0))
-# 
-# print(estadosIguais(E0, Eobj))
+        
+#-----------------------------------------------
+
+#Necessário para utilizar os algorimos de busca
+busca.funcLstAction = listarAcoes
+busca.funcExeAction = executarAcao
+busca.funcCmpState  = estadosIguais
+
+busca.busca(("S", 0), ("G", None), "largura")
+print("BFS:")
+print(busca.solucao())
+print("\n\n\n")
+busca.busca(("S", 0), ("G", None), "profundidade")
+print("DFS:")
+print(busca.solucao())
+print("\n\n\n\n")
+busca.busca(("S", 0), ("G", None), "custo")
+print("UCS:")
+print(busca.solucao())

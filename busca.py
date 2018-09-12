@@ -1,8 +1,23 @@
 
-import modelo 
+#import modelo 
 import copy
 import math
 from PIL import Image, ImageDraw
+
+def genericLstAction(State):
+    pass
+
+def genericExeAction(State, Action):
+    pass
+
+def genericCmpState(StateA, StateB):
+    pass
+
+#Estes callbacks tornam os algorimos de busca independentes dos modelos
+funcLstAction = genericLstAction
+funcExeAction = genericExeAction
+funcCmpState  = genericCmpState
+
 
 #--Representa um nó
 class No:
@@ -26,127 +41,121 @@ def recuperarNo(memoria, metodo):
         no = memoria.pop(0)
     elif (metodo == "profundidade"):
         no = memoria.pop()
+    elif (metodo == "custo"):
+        #Ordena os nós pelo menor custo
+        memoria.sort(key = lambda No: No.estado[1])
+        no = memoria.pop(0)
 
     return no
 
 #--Verificar se há estado repetido
 def estadoRepetido(listaDeNos, no):
     for no_ in listaDeNos:
-        if (modelo.estadosIguais(no_.estado, no.estado)):
+        if (funcCmpState(no_.estado, no.estado)):
+        #if (modelo.estadosIguais(no_.estado, no.estado)):
             return True
         
     return False
 
+def strMemoria(memoria):
+    txt = ""
+
+    for no in memoria:
+        txt = txt + str(no.estado)
+
+    return txt
+
 #--Busca uma solução para o problema
-def busca(Einicial, Eobjetivo, metodo, maxiteracoes = 10000):
+def busca(Einicial, Eobjetivo, metodo, maxiteracoes = 100):
     #Remove a soluçao anterior
     Nos.clear()
 
     #A principio, inicia somente com o estado inicial, ou seja, o nó raiz
-    noInicial = No(None, [], modelo.E0)
+    noInicial = No(None, [], Einicial)
 
     Nos.append(noInicial)
 
     #A memória guarda os estados para fins de algoritmo
     memoria = [noInicial]
 
-    possuiSolucao = None
+    possuiSolucao = False
     iteracoes = 0
-    #profundidade = 1
-    largura = 0
-
+    
     #Teste inicial...
-    if (modelo.estadosIguais(Einicial, Eobjetivo)):
-        possuiSolucao = largura
+    if (funcCmpState(Einicial, Eobjetivo)):
+    #if (modelo.estadosIguais(Einicial, Eobjetivo)):
+        possuiSolucao = True
+        #possuiSolucao = largura
 
     #Processa a memória até obter a solução
-    while ((len(memoria) > 0 and possuiSolucao == None) and iteracoes < maxiteracoes):
+    while ((len(memoria) > 0 and possuiSolucao == False) and iteracoes < maxiteracoes):
+        #txt = strMemoria(memoria) ##Remover depois
+
         #Recupera um nó da memória de acordo com o algoritmo
         no = recuperarNo(memoria, metodo)
+
+        #txt = txt + "->" + str(no.estado) ##Remover depois
+        #print(txt) ##Remover depois
+
         #A partir do nó, obter estado
-        estado = no.estado
+        estado = no.estado        
         
         #Obtém todas as ações possíveis do estado atual
-        acoes = modelo.listarAcoes(estado)
-        #print(str(profundidade))
-        #print(acoes)
+        acoes = funcLstAction(estado)
+        #acoes = modelo.listarAcoes(estado)
 
-        #Atualiza os parametros da solução
-        if len(acoes) > 0:
-            #profundidade = profundidade + 1
-            largura = max(largura, len(acoes))
-
+        #Verifica se encontrou a solução utilizando o método de redução do custo         
+        if (funcCmpState(estado, Eobjetivo)):
+        #if (modelo.estadosIguais(estado, Eobjetivo)):
+            possuiSolucao = True
+            Nos.append(no)  
+            break        
+                
         for acao in acoes:
             #Obtém o novo estado aplicando a ação possível            
             novoEstado = copy.deepcopy(estado)
-            modelo.executarAcao(novoEstado, acao)
+            
+            novoEstado = funcExeAction(novoEstado, acao)
+            #novoEstado = modelo.executarAcao(novoEstado, acao)
 
+            #print(novoEstado)
+            
             #Cria o novo nó atribuindo "no" como nó-pai e "novoEstado" como estado atual para esse nó
             novoNo = No(no, [], novoEstado)
+
             #Atribui "novoNo" como nó-filho 
             no.nosFilho.append(novoNo)
 
             #Se o estado for repetido, não coloque novamente na memória (Evita loops)
-            if (estadoRepetido(Nos, novoNo) == False):
-                guardarNo(memoria, novoNo)
+            #if (estadoRepetido(Nos, novoNo) == False):
+            guardarNo(memoria, novoNo)
                 
             #Registra o nó mesmo se for repetido    
             Nos.append(novoNo)
 
-            if (modelo.estadosIguais(novoEstado, Eobjetivo)):
-                possuiSolucao = largura
-                break
-
+            
             iteracoes = iteracoes + 1
 
     return possuiSolucao
 
 #Obter os passos que levam a solução
-def solucao(tabelaDeNos):
+def solucao():
     solucao = []
 
-    no = tabelaDeNos[len(tabelaDeNos) - 1]
+    no = Nos[len(Nos) - 1]
     while (no != None):
         solucao.insert(0, no.estado)
         no = no.noPai
        
     return solucao
-
-#def desenharEstado(E, imagem, xy, wh):
-#    dr = ImageDraw.Draw(imagem)
-#
-#    # Parâmetros para o desenho
-#    x,y = xy
-#    w, h = wh
-#    dx, dy = w/3, h/3
-#
-#    # Desenha elemento a elemento do estado E
-#    for lin in E:
-#        for value in lin:
-#            dr.text((x + dx/2, y + dy/2), str(value), fill=(0, 0, 255))
-#            dr.rectangle((x, y, x + dx, y + dy), outline=(0, 0, 0))
-#            x = x + dx
-#
-#        x = xy[0]
-#        y = y + dy
             
 #Gera uma imagem para facilitar a visualização da solução
-def gerarImagemSolucao(solucao):
-    imagem = Image.new("RGB", (len(solucao) * 100, 100), color="white")
-    
-    x = 0
-    for estado in solucao:
-        modelo.desenharEstado(estado, imagem, (x + 5, 5), (90, 90))
-        x = x + 100
-
-    imagem.save("solucao.png")
-
-#resultado = busca(modelo.E0, modelo.Eobj, "largura")
-
-#print(resultado)
-
-#gerarImagemSolucao(solucao(Nos))
-
-#if (resultado):
-#    for no in Nos:
-#        print(no.estado)
+#def gerarImagemSolucao(solucao):
+#    imagem = Image.new("RGB", (len(solucao) * 100, 100), color="white")
+#    
+#    x = 0
+#    for estado in solucao:
+#        modelo.desenharEstado(estado, imagem, (x + 5, 5), (90, 90))
+#        x = x + 100
+#
+#    imagem.save("solucao.png")
