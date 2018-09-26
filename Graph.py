@@ -14,17 +14,20 @@ class graph:
     repeated_state = 0
 
     def __init__(self, hash_function = hash_function_default, cmp_function = cmp_default):
+        self.reset()
         self.hash_function = hash_function
         self.cmp_function = cmp_function
 
     def reset(self):
-        self.graphs = []
+        self.graphs.clear()
+        self.hash_table.clear()
+        self.repeated_state = 0
 
     def append(self, node):
         hash_value = self.hash_function(node.state)
         
         # Verify if the state is a repeated state
-        if (self.state_exists(node.state, True) == True):
+        if (self.state_exists(node, True) == True):
             return False
 
         # Add a new hash if necessary
@@ -60,7 +63,8 @@ class graph:
         else:
             return 0
 
-    def state_exists(self, state, stat = False):   
+    def state_exists(self, node, stat = False):  
+        state = node.state 
         hash_value = self.hash_function(state)     
         node_list = self.hash_table.get(hash_value, None)
         
@@ -68,9 +72,15 @@ class graph:
             return False
         
         for some_node in node_list:
-            if self.cmp_function(some_node.state, state): 
+            if self.cmp_function(some_node.state, state) == True: 
+                #If there some collision, remove the node most depth
+                if (node.level < some_node.level):
+                    self.hash_table[hash_value].remove(some_node)
+                    return False
+
                 if (stat == True):
                     self.repeated_state = self.repeated_state + 1               
+                
                 return True
 
         return False   

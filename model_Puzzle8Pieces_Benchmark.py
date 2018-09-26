@@ -1,7 +1,13 @@
 
 #from PIL import Image, ImageDraw
+import DFSIterative
+import DFSRecursive
 import BFS
+
 import math
+import time
+import random
+import copy
 
 def encoding(E):
     value = 0
@@ -26,7 +32,6 @@ def decoding(value):
     return E
 
 #--Estado inicial
-#E0 =  encoding( [ [0,2,3] ,  [4,5,6] , [7,8, 1]])
 E0 =  encoding( [ [3,4,5] , [7,1,0] , [2,8,6]])
 
 #--Estado final
@@ -114,10 +119,56 @@ def cmpEstados(Ea, Eb):
 def funcaoHash(Et):
     return Et % 50
 
-#busca = BFS.BFS_algorthmcs(listarAcoes, executarAcao, funcaoHash, cmpEstados)
+#------------------------------------------------
 
-busca = BFS.BFS_algorithmcs(listarAcoes, executarAcao, funcaoHash, cmpEstados)
-vec = [ str(decoding(x.state)) for x in busca.BFS(E0, Eobj)]
+def randomize_initial_state(state_objective, step):    
+    
+    solution = []
+    initial_state = state_objective
+    states_already_visited = [state_objective]
 
-for v in vec:
-    print(v)
+    while len(solution) < step:
+        #List all possible actions
+        acoes = listarAcoes(initial_state)
+        
+        #Choice a possibility randolly from the possible actions
+        action = acoes[random.randint(0, len(acoes) - 1)]
+                
+        temp_state = executarAcao(initial_state, action)
+
+        #Add the step if the state is new
+        if states_already_visited.count(temp_state) == 0:
+            solution.append(action)
+            initial_state = temp_state
+            states_already_visited.append(temp_state)
+        
+    print("initial state: %s" %str(decoding(initial_state)))
+    print("solution: %s" %str(solution))
+    return initial_state
+
+
+steps = 23
+E0 = randomize_initial_state(Eobj, steps)
+#E0 = encoding([[2, 5, 6], [3, 0, 7], [1, 4, 8]])
+
+print("-------------------------------------------------------------------------\n\n")
+
+busca1 = DFSIterative.DFS_algorithmcs(listarAcoes, executarAcao, funcaoHash, cmpEstados)
+busca2 = DFSRecursive.DFS_algorithmcs(listarAcoes, executarAcao, funcaoHash, cmpEstados)
+busca3 = BFS.BFS_algorithmcs(listarAcoes, executarAcao, funcaoHash, cmpEstados)
+
+start_time1 = time.time()
+vec = [ x for x in busca1.DFS(E0, Eobj, steps)]
+print(vec)
+print("-----------------------DFS Iter %s seconds -----------------------\n\n" %(time.time() - start_time1))
+
+start_time2 = time.time()
+vec = [ x for x in busca2.DFS(E0, Eobj, steps)]
+print(vec)
+print("-----------------------DFS Recr %s seconds -----------------------\n\n" %(time.time() - start_time2))
+
+start_time3 = time.time()
+vec = [ x.action for x in busca3.BFS(E0, Eobj)]
+print(vec)
+print("-----------------------BFS      %s seconds -----------------------\n\n" %(time.time() - start_time3))
+

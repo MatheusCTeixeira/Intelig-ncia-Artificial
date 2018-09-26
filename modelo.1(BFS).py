@@ -58,4 +58,4 @@ busca = BFS.BFS_algorithmcs(list_action_function=listarAcoes, execute_action_fun
 
 
 for step in busca.BFS(E0, Eobj):
-    print(str(step.state) + " " + str(step.action) + "\n\n") 
+    print("mover-se para " + str(step.action) + ", ", end=' ') 

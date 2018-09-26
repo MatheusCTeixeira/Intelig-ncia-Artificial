@@ -1,0 +1,16 @@
+initial state: [[2, 1, 3], [5, 8, 0], [4, 7, 6]]
+solution: ['left', 'up', 'up', 'right', 'down', 'down', 'left', 'left', 'up', 'right', 'right', 'down', 'left', 'up', 'right', 'up', 'left', 'left', 'down', 'right', 'down', 'right', 'up']
+-------------------------------------------------------------------------
+
+
+['', 'up', 'left', 'down', 'left', 'up', 'right', 'right', 'down', 'left', 'up', 'left', 'down', 'right', 'up', 'left', 'down', 'down', 'right', 'up', 'right', 'down']
+-----------------------DFS Iter 56.51721143722534 seconds -----------------------
+
+
+['$', 'up', 'left', 'down', 'left', 'up', 'right', 'right', 'down', 'left', 'up', 'left', 'down', 'right', 'up', 'left', 'down', 'down', 'right', 'up', 'right', 'down']
+-----------------------DFS Recr 57.52199053764343 seconds -----------------------
+
+
+['#', 'left', 'up', 'left', 'down', 'right', 'right', 'up', 'left', 'left', 'down', 'down', 'right', 'up', 'up', 'right', 'down', 'down']
+-----------------------BFS      7.11976432800293 seconds -----------------------
+

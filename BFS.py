@@ -27,12 +27,15 @@ class BFS_algorithmcs:
 
     def BFS(self, state_origin, state_objective):
         self.graph = Graph.graph(self.hash_function, self.cmp_function)
-        edge = deque([Node.node(state_origin, "#")])
+
+        node = Node.node(state_origin, "#")
+        self.graph.append(node)
+        edge = [node]
 
         solution_found = self.cmp_function(state_origin, state_objective)
 
         while (len(edge) > 0 and solution_found == False):
-            currentNode = edge.popleft()          
+            currentNode = edge.pop()         
 
             actions = self.list_action_function(currentNode.state)
 
@@ -48,7 +51,7 @@ class BFS_algorithmcs:
 
                 # Add the node to edge
                 if (is_new_state == True):
-                    edge.append(new_node)
+                    edge.insert(0, new_node)
 
                 solution_found = solution_found or self.cmp_function(state, state_objective)
                 
