@@ -147,7 +147,7 @@ def randomize_initial_state(state_objective, step):
     return initial_state
 
 
-steps = 23
+steps = 20
 E0 = randomize_initial_state(Eobj, steps)
 #E0 = encoding([[2, 5, 6], [3, 0, 7], [1, 4, 8]])
 

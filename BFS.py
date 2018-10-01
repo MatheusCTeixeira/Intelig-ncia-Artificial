@@ -2,6 +2,7 @@ import Graph
 import Node
 from collections import deque
 
+
 class BFS_algorithmcs:
     def __init__(self, list_action_function, execute_action_function,\
                        hash_function, cmp_function):

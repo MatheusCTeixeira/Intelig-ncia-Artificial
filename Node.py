@@ -16,6 +16,9 @@ class node:
         self.action = action
         self.parent = parent
         self.childrens = []
+        self.cost = 0
+        self.heurist = 0
+        self.cost_heuristic = 0
         
         if (parent != None):
             self.level = parent.level + 1

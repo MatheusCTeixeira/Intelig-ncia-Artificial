@@ -8,26 +8,30 @@ def cmp_default(st1, st2):
 def hash_function_default(st):
     return 0
 
+def disambiguation_function(node1, node2):
+    return node1
+
 class graph:
     graphs = []
     hash_table = {}
     repeated_state = 0
 
-    def __init__(self, hash_function = hash_function_default, cmp_function = cmp_default):
+    def __init__(self, hash_function = hash_function_default, cmp_function = cmp_default, disambiguation_function = disambiguation_function):
         self.reset()
         self.hash_function = hash_function
         self.cmp_function = cmp_function
+        self.disambiguation_function = disambiguation_function
 
     def reset(self):
         self.graphs.clear()
         self.hash_table.clear()
         self.repeated_state = 0
 
-    def append(self, node):
+    def append(self, node, prefereced_to_lowest_level = True):
         hash_value = self.hash_function(node.state)
         
         # Verify if the state is a repeated state
-        if (self.state_exists(node, True) == True):
+        if (self.state_exists(node,True) == True):
             return False
 
         # Add a new hash if necessary
@@ -74,7 +78,7 @@ class graph:
         for some_node in node_list:
             if self.cmp_function(some_node.state, state) == True: 
                 #If there some collision, remove the node most depth
-                if (node.level < some_node.level):
+                if self.disambiguation_function(node, some_node) == True:
                     self.hash_table[hash_value].remove(some_node)
                     return False
 
@@ -84,35 +88,3 @@ class graph:
                 return True
 
         return False   
-            
-
-
-#def my_hash(st):
-#    return st % 100
-#
-#graph1 = graph(hash_function=my_hash)
-#
-#node1 = Node.node(100, "<-")
-#graph1.append(node1)
-#
-#fathers = [node1]
-#
-#
-#for i in range(0, 1000):    
-#    for k in range(0, 1000):
-#        val = int( random.random()*(len(fathers) - 1) )
-#        state = int(random.random() * 5000)
-#        no = Node.node(state, "-<", fathers[val])
-#        fathers.append(no)
-#        graph1.append( no )
-#
-#graph1.status()
-#
-#for a in graph1.hash_table:
-#    print(len(graph1.hash_table[a]))    
-#
-#print("---------------------------------------------")
-#
-#for i in range(4995, 5005):
-#    print(graph1.state_exists(i))
-#        

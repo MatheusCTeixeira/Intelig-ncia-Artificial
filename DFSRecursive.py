@@ -55,7 +55,10 @@ class DFS_algorithmcs:
     #--------------------------------------------------------------------------
 
     def DFS(self, state_origin, state_objective, lvl):
-        graph = Graph.graph(self.hash_function, self.cmp_function)
+        #Create the graph
+        #Prefer the node with lowest level
+        graph = Graph.graph(self.hash_function, self.cmp_function, \
+                            lambda new_node, old_node: new_node.level < old_node.level)
         
 
         first_node = Node.node(state_origin, "$")

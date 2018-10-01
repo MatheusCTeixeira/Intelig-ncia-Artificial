@@ -18,7 +18,9 @@ class DFS_algorithmcs:
 
     def DFS(self, state_origin, state_objective, lvl):
         #Create the graph
-        graph = Graph.graph(self.hash_function, self.cmp_function)
+        #Prefer the node with lowest level
+        graph = Graph.graph(self.hash_function, self.cmp_function,\
+                            lambda new_node, old_node: new_node.level < old_node.level)
 
         #Create the first node
         node = Node.node(state_origin, "")
