@@ -17,10 +17,12 @@ map = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], \
        [0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 1], \
        [1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0], \
        [0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0], \
-       [0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0], \
+       [0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0], \
        [0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0], \
        [0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0], \
        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]    
+
+
 
 #--Estado inicial
 E0 =  ("A", 0, 0)
@@ -30,6 +32,9 @@ Eobj = ("P", 0, 0)
 
 #--Transforma o labirinto em nós
 nodes = labirinto.find_nodes(map, (9,0), (8, 20))
+
+labirinto.highlight_nodes(map, nodes)
+labirinto.drawMap(map, (700, 500))
 
 #--Transforma os nós em uma tabela
 Movimentos = labirinto.nodes_to_dictionary(nodes)
@@ -104,6 +109,8 @@ start_time = time.time()
 for step in solution:
     print("mover-se para " + str(step) + ", ", end=' ') 
 print("\nduration: %sseg" %(time.time() - start_time) )
+
+
 
 
 print("\n-------------------------------------------------------------------\n")
