@@ -5,19 +5,23 @@ from PyQt5 import QtCore
 
 from PyQt5.QtChart import QBarSeries, QBarSet, QChart, QChartView, QBarCategoryAxis
 
+from deprecated import deprecated
+
 #--------------------------------------------------------------------------#
 
 
 class Piece(QLabel):
     """ Representa uma peça no tabuleiro """
     matrix_piece = []
-    map = None
+    map = [[]]
 
     def __init__(self, text, position, map):
         super().__init__()
         super().setText(text)
+
         self.position = position
         self.map = map
+        print(self.map)
 
         i, j = self.position
         while len(self.matrix_piece) <= i:
@@ -26,10 +30,17 @@ class Piece(QLabel):
         while len(self.matrix_piece[i]) <= j:
             self.matrix_piece[i].append(self)
 
+    @deprecated(version='1', reason='inelegant. replaced by update_pieces()')
     def swap_text(self, lbl1, lbl2):
         text = lbl1.text()
         lbl1.setText(lbl2.text())
         lbl2.setText(text)
+  
+    def update_pieces(self): 
+        print(Piece.map)
+        for i in range(len(Piece.matrix_piece)):
+            for j in range(len(Piece.matrix_piece[0])):
+                Piece.matrix_piece[i][j].setText(str(self.map[i][j]))
 
     def swap_map(self, pos1, pos2):
         i1, j1 = pos1
@@ -38,44 +49,62 @@ class Piece(QLabel):
         val = self.map[i1][j1]
         self.map[i1][j1] = self.map[i2][j2]
         self.map[i2][j2] = val
-        
+
     def mousePressEvent(self, mouse_event):
         """ Processa o evento de click em um peça do tabuleiro """
-        i, j = self.position               
+        i, j = self.position
 
-        if i > 0 and self.matrix_piece[i - 1][j].text() == "0":
-            self.swap_text(self.matrix_piece[i][j],\
-                           self.matrix_piece[i - 1][j])
+        if i > 0 and self.map[i - 1][j] == 0:
             self.swap_map(self.position, (i - 1, j))
 
-        elif i + 1 < len(self.matrix_piece) and self.matrix_piece[i + 1][j].text() == "0":
-            self.swap_text(self.matrix_piece[i][j],\
-                           self.matrix_piece[i + 1][j])                    
-            self.swap_map(self.position, (i + 1, j))            
+        elif i + 1 < len(self.map) and self.map[i + 1][j] == 0:
+            self.swap_map(self.position, (i + 1, j))
 
-        elif j > 0 and self.matrix_piece[i][j - 1].text() == "0":
-            self.swap_text(self.matrix_piece[i][j],\
-                           self.matrix_piece[i][j - 1])
-            self.swap_map(self.position, (i, j - 1))        
+        elif j > 0 and self.map[i][j - 1] == 0:
+            self.swap_map(self.position, (i, j - 1))
 
-        elif j + 1 < len(self.matrix_piece[0])  and self.matrix_piece[i][j + 1].text() == "0":
-            self.swap_text(self.matrix_piece[i][j],\
-                           self.matrix_piece[i][j + 1])
+        elif j + 1 < len(self.map[0]) and self.map[i][j + 1] == 0:
             self.swap_map(self.position, (i, j + 1))
-        
+
+        self.update_pieces()
+
         for line in self.map:
             for x in line:
-                print("%3d" %x, end='')
+                print("%3d" % x, end='')
             print()
-
 
         print("---------------------------------------------\n")
 
 #--------------------------------------------------------------------------#
 
 
+class SolutionManager:
+    """ Esta classe é resposável por controlar a exibição da solução passo a passo """
+
+    def __init__(self, solution, map):
+        self.solution = solution
+        self.step = 0
+
+    def step_foward(self):
+        if (len(self.solution) + 1 < self.step):
+            self.step += 1
+
+    def step_back(self):
+        if (self.step > 0):
+            self.step -= 1
+
+    def get_step(self):
+        if (self.solution != None and len(self.solution) > self.step):
+            return self.solution[self.step]
+
+
+#--------------------------------------------------------------------------#
+
+
 class ControlButton(QPushButton):
     """ Representa os buttons para iterar a solução """
+    pieces = None
+    board = [[]]
 
     def __init__(self, text, action):
         super().__init__()
@@ -85,10 +114,23 @@ class ControlButton(QPushButton):
 
     def mouseReleaseEvent(self, event):
         """ Ação de clicar no button """
-        print(self.action())
+        if self.action == "solution":
+            self.find_solution()
+        elif self.action == "foward":
+            self.foward()
+        elif self.action == "back":
+            self.back()
 
         super().mouseReleaseEvent(event)
 
+    def find_solution(self):
+        print("solution")
+    
+    def foward(self):
+        print("foward")
+
+    def back(self):
+        print("back")
 #--------------------------------------------------------------------------#
 
 
@@ -119,6 +161,8 @@ class Game:
 
         app.exec_()
 
+    #--------------------------------------------------------------------------#
+
     def create_board(self, N):
         """ Cria o tabuleiro """
 
@@ -148,7 +192,7 @@ class Game:
         """ Adiciona as opções de soluções utilizando IA """
 
         cbbMethods = QComboBox()
-        cbbMethods.addItems(["BFS", "DFS", "A* + Manhattan", "HC"])
+        cbbMethods.addItems(["BFS", "DFS Iter.", "DFS Recr."])
 
         pane = QWidget()
 
@@ -161,23 +205,28 @@ class Game:
 
         return pane
 
+    #--------------------------------------------------------------------------#
+
     def step_solution(self):
         """ Itera entre os passos que levam a solução (semelhante a depurar a solução) """
 
         pane = QWidget()
 
         hbox = QHBoxLayout()
-        hbox.addWidget(ControlButton("<<", lambda: self.current_step - 1))
-        hbox.addWidget(ControlButton("||", lambda: 0))
-        hbox.addWidget(ControlButton(">>", lambda: self.current_step + 1))
+        ControlButton.board = self.board
+        hbox.addWidget(ControlButton("<<", "back"))
+        hbox.addWidget(ControlButton("Solucionar", "solution"))
+        hbox.addWidget(ControlButton(">>", "foward"))
         pane.setLayout(hbox)
 
         return pane
 
+    #--------------------------------------------------------------------------#
+
     def draw_result(self):
         """ Exibe os resultados para comparação entre os métodos """
 
-        names = ["BFS", "DFS", "A*", "HC"]
+        names = ["BFS", "DFS Iter.", "DFS Recr."]
 
         serie = QBarSeries()
         for k in range(len(names)):

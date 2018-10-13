@@ -1,5 +1,7 @@
 import Graph
 import Node
+import solution
+
 from collections import deque
 
 
@@ -10,32 +12,33 @@ class BFS_algorithmcs:
         self.execute_action_function = execute_action_function
         self.hash_function = hash_function
         self.cmp_function = cmp_function
+    
+    #--------------------------------------------------------------------------#
 
+    def trace_solution(self, E0, Ef, node_solution):
+        actions = []
+        states = []
 
-    def trace_solution(self, state_objective):
-        solution = []
-        for node in self.graph.graphs[len(self.graph.graphs) - 1]:
-            if self.cmp_function(node.state, state_objective) == True:                
-                solution.append(node)
+        temp = node_solution
+        while temp != None:
+            states.insert(0, temp.state)
+            actions.insert(0, temp.action)
+            temp = temp.parent
+
+        return solution.solution(E0, Ef, actions, states)
         
-        if len(solution) > 0:
-            while (solution[0].parent != None):
-                solution.insert(0, solution[0].parent)
-
-        return solution
-
-
+    #--------------------------------------------------------------------------#
 
     def BFS(self, state_origin, state_objective):
         self.graph = Graph.graph(self.hash_function, self.cmp_function)
 
-        node = Node.node(state_origin, "#")
+        node = Node.node(state_origin, " ")
         self.graph.append(node)
         edge = [node]
 
         solution_found = self.cmp_function(state_origin, state_objective)
 
-        while (len(edge) > 0 and solution_found == False):
+        while len(edge) > 0 and solution_found == False:
             currentNode = edge.pop()         
 
             actions = self.list_action_function(currentNode.state)
@@ -54,7 +57,11 @@ class BFS_algorithmcs:
                 if (is_new_state == True):
                     edge.insert(0, new_node)
 
-                solution_found = solution_found or self.cmp_function(state, state_objective)
-                
+                if self.cmp_function(state, state_objective) == True:                    
+                    solution_found = new_node                    
+                    break
+                #solution_found = solution_found or self.cmp_function(state, state_objective)                
         
-        return self.trace_solution(state_objective)
+        return  self.trace_solution(state_origin, state_objective, solution_found)
+
+        #--------------------------------------------------------------------------#

@@ -1,5 +1,4 @@
 
-#from PIL import Image, ImageDraw
 import DFSIterative
 import DFSRecursive
 import BFS
@@ -8,6 +7,10 @@ import math
 import time
 import random
 import copy
+
+import argparse
+
+import sys
 
 def encoding(E):
     value = 0
@@ -32,7 +35,7 @@ def decoding(value):
     return E
 
 #--Estado inicial
-E0 =  encoding( [ [3,4,5] , [7,1,0] , [2,8,6]])
+E0 =  encoding([ [1,2,3] ,  [4,0,6] , [7,5, 8]])
 
 #--Estado final
 Eobj = encoding([ [1,2,3] ,  [4,5,6] , [7,8, 0]])
@@ -50,25 +53,25 @@ def posicaoAtual(Et):
 #--Lista todos as possiveis ações para determinado estado
 def listarAcoes(Et):
 
-    acoesPossiveis = []
+    acoes_possiveis = []
 
     posicao = posicaoAtual(Et)
     
     lin, col = posicao
    
-    if (lin > 0):
-        acoesPossiveis.append("up")
+    if lin > 0:
+        acoes_possiveis.append("up")
 
-    if (lin < 2):
-        acoesPossiveis.append("down")
+    if lin < 2:
+        acoes_possiveis.append("down")
 
-    if (col > 0): 
-        acoesPossiveis.append("left")
+    if col > 0: 
+        acoes_possiveis.append("left")
 
-    if (col < 2): 
-        acoesPossiveis.append("right")
+    if col < 2: 
+        acoes_possiveis.append("right")
 
-    return acoesPossiveis
+    return acoes_possiveis
 #------------------------------------------------
 
 
@@ -147,28 +150,31 @@ def randomize_initial_state(state_objective, step):
     return initial_state
 
 
-steps = 16
-E0 = randomize_initial_state(Eobj, steps)
-#E0 = encoding([[2, 5, 6], [3, 0, 7], [1, 4, 8]])
+def BFS_solution():
+    print("____________________________________________________")
 
-print("-------------------------------------------------------------------------\n\n")
+    busca = BFS.BFS_algorithmcs(list_action_function=listarAcoes, execute_action_function=executarAcao, hash_function=funcaoHash, cmp_function=cmpEstados)
+    print("BFS solution: ")
+    solution = busca.BFS(E0, Eobj)
+    solution.E0 = decoding(solution.E0)
+    solution.Ef = decoding(solution.Ef)
+    solution.states = [decoding(x) for x in solution.states]
 
-busca1 = DFSIterative.DFS_algorithmcs(listarAcoes, executarAcao, funcaoHash, cmpEstados)
-busca2 = DFSRecursive.DFS_algorithmcs(listarAcoes, executarAcao, funcaoHash, cmpEstados)
-busca3 = BFS.BFS_algorithmcs(listarAcoes, executarAcao, funcaoHash, cmpEstados)
+    return solution
 
-start_time1 = time.time()
-vec = [ x for x in busca1.DFS(E0, Eobj, steps)]
-print(vec)
-print("-----------------------DFS Iter %s seconds -----------------------\n\n" %(time.time() - start_time1))
+    print(solution.actions)
+    print(solution.states)
 
-start_time2 = time.time()
-vec = [ x for x in busca2.DFS(E0, Eobj, steps)]
-print(vec)
-print("-----------------------DFS Recr %s seconds -----------------------\n\n" %(time.time() - start_time2))
-
-start_time3 = time.time()
-vec = [ x.action for x in busca3.BFS(E0, Eobj)]
-print(vec)
-print("-----------------------BFS      %s seconds -----------------------\n\n" %(time.time() - start_time3))
-
+#parser = argparse.ArgumentParser()
+#parser.add_argument("-o", nargs="?", type=int, help="O formato do quebra-cabeça. Default = 3. Ex: 3, 4,... ")
+#parser.add_argument("-m", nargs="?", type=str, help="Algoritmo de busca. Default = BFS. Ex: BFS ou DFSI ou DFSR")
+#parser.add_argument("-E0", nargs="?", type=str, help="Estado inicio. Default/Ex: [[1, 2, 3], [4, 5, 6], [7, 8, 0]]\n")
+#parser.add_argument("-Ef", nargs="?", type=str, help="Estado fim. Default/Ex: [[1, 2, 3], [4, 5, 6], [7, 8, 0]]\n")
+#
+#sysargs = sys.argv[1:]
+#if len(sysargs) == 0:
+#    sysargs = ["-h"]
+#
+#
+#args = vars(parser.parse_args(sysargs))
+#print(args)
