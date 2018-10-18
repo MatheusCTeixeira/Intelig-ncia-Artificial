@@ -19,11 +19,15 @@ class BFS_algorithmcs:
         actions = []
         states = []
 
-        temp = node_solution
-        while temp != None:
-            states.insert(0, temp.state)
-            actions.insert(0, temp.action)
-            temp = temp.parent
+        if E0 == Ef:
+            actions.append(" ")
+            states.append(E0)           
+        else:
+            temp = node_solution
+            while temp != None:
+                states.insert(0, temp.state)
+                actions.insert(0, temp.action)
+                temp = temp.parent
 
         return solution.solution(E0, Ef, actions, states)
         

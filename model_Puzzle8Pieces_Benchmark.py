@@ -38,7 +38,7 @@ def decoding(value):
 E0 =  encoding([ [1,2,3] ,  [4,0,6] , [7,5, 8]])
 
 #--Estado final
-Eobj = encoding([ [1,2,3] ,  [4,5,6] , [7,8, 0]])
+Eobj = encoding([ [0,1,2] ,  [3,4,5] , [6,7, 8]])
 
 #-- Procura a posição atual
 def posicaoAtual(Et):       
@@ -150,7 +150,7 @@ def randomize_initial_state(state_objective, step):
     return initial_state
 
 
-def BFS_solution():
+def BFS_solution(E0):
     print("____________________________________________________")
 
     busca = BFS.BFS_algorithmcs(list_action_function=listarAcoes, execute_action_function=executarAcao, hash_function=funcaoHash, cmp_function=cmpEstados)
@@ -160,10 +160,10 @@ def BFS_solution():
     solution.Ef = decoding(solution.Ef)
     solution.states = [decoding(x) for x in solution.states]
 
-    return solution
-
     print(solution.actions)
     print(solution.states)
+    
+    return solution.states
 
 #parser = argparse.ArgumentParser()
 #parser.add_argument("-o", nargs="?", type=int, help="O formato do quebra-cabeça. Default = 3. Ex: 3, 4,... ")

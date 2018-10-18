@@ -1,3 +1,11 @@
+import sys
+
+sys.path.append("..")
+
+
+from model_Puzzle8Pieces_Benchmark import BFS_solution
+from model_Puzzle8Pieces_Benchmark import E0
+from model_Puzzle8Pieces_Benchmark import encoding
 
 from PyQt5.QtWidgets import QWidget, QApplication, QGridLayout, QVBoxLayout, QHBoxLayout, QLabel, QComboBox, QPushButton
 from PyQt5.QtGui import QFont
@@ -101,15 +109,21 @@ class Piece(QLabel):
 
 
 class ControlButton(QPushButton):
-    """ Representa os buttons para iterar a solução """    
+    """ Representa os buttons para iterar a solução """  
+
+    solution = None  
+    step = 0
 
     def __init__(self, text, action, board, pieces):
         super().__init__()
         super().setText(text)
 
-        self.action = action
-        self.board = board
-        self.pieces = pieces    
+        self.action = action    #Indica o tipo de ação de cada button
+        self.board = board      #Armazenas as peças (como valores lógicos)
+        self.pieces = pieces    #Armazenas as peças (como componentes gráficos)
+
+        #self.solution = None    #Representa a solução obtida
+        #self.step = 0           #Representa o passo da solução atual
         
     def mouseReleaseEvent(self, event):
         """ Ação de clicar no button """
@@ -123,21 +137,51 @@ class ControlButton(QPushButton):
         super().mouseReleaseEvent(event)
 
     def find_solution(self):
-        pass
-    
+        E0 = encoding(self.board)
+        ControlButton.solution = BFS_solution(E0)
+        ControlButton.step = 0
+        print(self.solution)
+            
     def foward(self):
+        
+        if ControlButton.solution == None:
+            return
+
+
+        step = ControlButton.step
+        print(step)
+        solution = ControlButton.solution        
+
+        if step < len(solution) - 1:
+            ControlButton.step += 1
+            step += 1
+
         for i in range(len(self.board)):
             for j in range(len(self.board[0])):
-                self.board[i][j] = 1
-
-        self.board[0][0] = 0
+                self.board[i][j] = solution[step][i][j]
+  
 
         self.update_pieces()
 
-        print("foward")
-
     def back(self):
-        print("back")
+        if ControlButton.solution == None:
+            return
+
+        step = ControlButton.step
+        print(step)
+        solution = ControlButton.solution
+
+        if step > 0:
+            ControlButton.step -= 1
+            step -= 1
+        
+
+        for i in range(len(self.board)):
+            for j in range(len(self.board[0])):
+                self.board[i][j] = solution[step][i][j]
+  
+
+        self.update_pieces()
 
     def update_pieces(self):         
         for i in range(len(self.pieces)):
@@ -277,4 +321,4 @@ class Game:
 #--------------------------------------------------------------------------#
 
 
-game = Game(5)
+game = Game(3)
