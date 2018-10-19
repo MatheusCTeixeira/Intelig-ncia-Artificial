@@ -14,8 +14,9 @@ from PyQt5 import QtCore
 from PyQt5.QtChart import QBarSeries, QBarSet, QChart, QChartView, QBarCategoryAxis
 
 #--------------------------------------------------------------------------#
-
-
+# Descrição: Esta classe representa as peças do tabuleiro
+#            em termos gráficos, ie, componentes GUI
+#
 class Piece(QLabel):
     """ Representa uma peça no tabuleiro """
     matrix_piece = []
@@ -26,16 +27,7 @@ class Piece(QLabel):
 
         self.position = position
         self.board = board
-        self.pieces = pieces
-
-        print(self.board)
-
-        #i, j = self.position
-        #while len(self.matrix_piece) <= i:
-        #    self.matrix_piece.append([])
-#
-        #while len(self.matrix_piece[i]) <= j:
-        #    self.matrix_piece[i].append(self)
+        self.pieces = pieces        
 
     def swap_text(self, lbl1, lbl2):
         text = lbl1.text()
@@ -73,57 +65,37 @@ class Piece(QLabel):
 
         self.update_pieces()
 
+        print("Tabuleiro: ")
         for line in self.board:
             for x in line:
                 print("%3d" % x, end='')
             print()
 
-        print("---------------------------------------------\n")
+        print("-" * 60)
+
+
+
+
+
 
 #--------------------------------------------------------------------------#
-
+# Descrição: Esta classe representa os componentes de controle da solução
+#            permitindo avançar, recuar e buscar a solução do estado atual
 #
-#class SolutionManager:
-#    """ Esta classe é resposável por controlar a exibição da solução passo a passo """
-#
-#    def __init__(self, solution):
-#        self.solution = solution
-#        self.step = 0        
-#
-#    def step_foward(self):
-#        
-#
-#        if (len(self.solution) + 1 < self.step):
-#            self.step += 1
-#
-#    def step_back(self):
-#        if (self.step > 0):
-#            self.step -= 1
-#
-#    def get_step(self):
-#        if (self.solution != None and len(self.solution) > self.step):
-#            return self.solution[self.step]
-#
-
-#--------------------------------------------------------------------------#
-
-
 class ControlButton(QPushButton):
     """ Representa os buttons para iterar a solução """  
 
-    solution = None  
-    step = 0
+    solution = None  # A solução é comum a todas os três buttons de controle
+    step = 0         # O progresso atual da solução
 
-    def __init__(self, text, action, board, pieces):
+    def __init__(self, text, action, board, pieces, method):
         super().__init__()
         super().setText(text)
 
-        self.action = action    #Indica o tipo de ação de cada button
-        self.board = board      #Armazenas as peças (como valores lógicos)
-        self.pieces = pieces    #Armazenas as peças (como componentes gráficos)
-
-        #self.solution = None    #Representa a solução obtida
-        #self.step = 0           #Representa o passo da solução atual
+        self.action = action     #Indica o tipo de ação de cada button
+        self.board = board       #Armazenas as peças (como valores lógicos)
+        self.pieces = pieces     #Armazenas as peças (como componentes gráficos)
+        self.method = method     #O método de solução escolhido
         
     def mouseReleaseEvent(self, event):
         """ Ação de clicar no button """
@@ -136,20 +108,28 @@ class ControlButton(QPushButton):
 
         super().mouseReleaseEvent(event)
 
+
     def find_solution(self):
-        E0 = encoding(self.board)
-        ControlButton.solution = BFS_solution(E0)
+
+        print("Método de busca : " + str(self.method.currentText()))
+
+        estado_atual = encoding(self.board)
         ControlButton.step = 0
-        print(self.solution)
+        ControlButton.solution = BFS_solution(estado_atual)
+
+
+        print("Solução encontrada: ")
+        for i in range(len(self.solution)):
+            temp = self.solution[i]
+            print(" " * 5 + str(i).rjust(2, ' ') + " - " + str(temp))
+        print("-" * 60)
             
     def foward(self):
         
         if ControlButton.solution == None:
             return
 
-
-        step = ControlButton.step
-        print(step)
+        step = ControlButton.step       
         solution = ControlButton.solution        
 
         if step < len(solution) - 1:
@@ -159,29 +139,31 @@ class ControlButton(QPushButton):
         for i in range(len(self.board)):
             for j in range(len(self.board[0])):
                 self.board[i][j] = solution[step][i][j]
-  
 
         self.update_pieces()
+
+        print("Passo " + str(step) + "/" + str(len(solution) - 1))
+        print("-" * 60)
 
     def back(self):
         if ControlButton.solution == None:
             return
 
-        step = ControlButton.step
-        print(step)
+        step = ControlButton.step       
         solution = ControlButton.solution
 
         if step > 0:
             ControlButton.step -= 1
-            step -= 1
-        
+            step -= 1        
 
         for i in range(len(self.board)):
             for j in range(len(self.board[0])):
-                self.board[i][j] = solution[step][i][j]
-  
+                self.board[i][j] = solution[step][i][j]  
 
         self.update_pieces()
+
+        print("Passo " + str(step) + "/" + str(len(solution) - 1))
+        print("-" * 60)
 
     def update_pieces(self):         
         for i in range(len(self.pieces)):
@@ -195,9 +177,15 @@ class ControlButton(QPushButton):
         val = self.board[i1][j1]
         self.board[i1][j1] = self.board[i2][j2]
         self.board[i2][j2] = val
+
+
+
+
+
+
 #--------------------------------------------------------------------------#
-
-
+# Descrição: Esta classe representa o jogo como um todo
+#            incluindo o tabuleiro e as peças
 class Game:
     """ Representa a interface do jogo """
 
@@ -209,12 +197,12 @@ class Game:
         vLayout = QVBoxLayout()
         vLayout.addWidget(QLabel("<h1><center>Quebra-Cabeça N Peças</center></h1>"))
         vLayout.addWidget(self.create_board(self.N))
-        vLayout.addWidget(self.create_controls())
         vLayout.addWidget(self.solution_methods())
+        vLayout.addWidget(self.create_controls())
 
         hLayout = QHBoxLayout()
         hLayout.addLayout(vLayout)
-        hLayout.addWidget(self.draw_result())
+        # hLayout.addWidget(self.draw_result()) <- caixa de pandora
 
         widget = QWidget()
         widget.setLayout(hLayout)
@@ -247,7 +235,8 @@ class Game:
                                      background: yellow;   \
                                      border-radius: 4px;")
                                      
-                self.pieces[i].append(piece)                                     
+                self.pieces[i].append(piece)    
+
                 grid.addWidget(piece, i, j)
 
         pane.setLayout(grid)
@@ -277,11 +266,12 @@ class Game:
 
         pane = QWidget()
 
-        hbox = QHBoxLayout()
         ControlButton.board = self.board
-        hbox.addWidget(ControlButton("<<",          "back",     self.board, self.pieces))
-        hbox.addWidget(ControlButton("Solucionar",  "solution", self.board, self.pieces))
-        hbox.addWidget(ControlButton(">>",          "foward",   self.board, self.pieces))
+
+        hbox = QHBoxLayout()
+        hbox.addWidget(ControlButton("<<",          "back",     self.board, self.pieces, self.cbbMethods))
+        hbox.addWidget(ControlButton("Solucionar",  "solution", self.board, self.pieces, self.cbbMethods))
+        hbox.addWidget(ControlButton(">>",          "foward",   self.board, self.pieces, self.cbbMethods))
         pane.setLayout(hbox)
     
         return pane
@@ -308,7 +298,7 @@ class Game:
         chart = QChart()
         chart.addSeries(serie)
         chart.setAxisX(axis)
-        chart.setTitle("Comparação entre os métodoss")
+        chart.setTitle("Comparação entre os métodos")
         chart.setAnimationOptions(QChart.SeriesAnimations)
 
         chart_view = QChartView(chart)
