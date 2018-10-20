@@ -35,6 +35,8 @@ class BFS_algorithmcs:
 
     def BFS(self, state_origin, state_objective):
         self.graph = Graph.graph(self.hash_function, self.cmp_function)
+        self.graph.reset()
+
 
         node = Node.node(state_origin, " ")
         self.graph.append(node)

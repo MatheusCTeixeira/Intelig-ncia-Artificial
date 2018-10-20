@@ -4,6 +4,10 @@ sys.path.append("..")
 
 
 from model_Puzzle8Pieces_Benchmark import BFS_solution
+from model_Puzzle8Pieces_Benchmark import DFS_Iter_solution
+from model_Puzzle8Pieces_Benchmark import DFS_Recr_solution
+
+
 from model_Puzzle8Pieces_Benchmark import E0
 from model_Puzzle8Pieces_Benchmark import encoding
 
@@ -111,12 +115,17 @@ class ControlButton(QPushButton):
 
     def find_solution(self):
 
-        print("Método de busca : " + str(self.method.currentText()))
+        selected_method = str(self.method.currentText())
+        print("Método de busca : " + selected_method)
 
         estado_atual = encoding(self.board)
         ControlButton.step = 0
-        ControlButton.solution = BFS_solution(estado_atual)
-
+        if selected_method == "BFS":
+            ControlButton.solution = BFS_solution(estado_atual)
+        elif selected_method == "DFS Iter.":
+            ControlButton.solution = DFS_Iter_solution(estado_atual)
+        elif selected_method == "DFS Recr.":
+            ControlButton.solution = DFS_Recr_solution(estado_atual)
 
         print("Solução encontrada: ")
         for i in range(len(self.solution)):

@@ -1,6 +1,6 @@
 
 #from PIL import Image, ImageDraw
-import DFSRecursive
+import DFSIterative
 import math
 import sys
 import time
@@ -122,8 +122,8 @@ sys.setrecursionlimit(60)
 
 start_time = time.time()
 
-busca = DFSRecursive.DFS_algorithmcs(listarAcoes, executarAcao, funcaoHash, cmpEstados)
-vec = [ x for x in busca.DFS(E0, Eobj, 18).actions]
+busca = DFSIterative.DFS_algorithmcs(listarAcoes, executarAcao, funcaoHash, cmpEstados)
+vec = [ x for x in busca.DFS(E0, Eobj, 6).actions]
 
 for v in vec:
     print(v)

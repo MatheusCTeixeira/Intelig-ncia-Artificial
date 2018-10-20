@@ -151,19 +151,35 @@ def randomize_initial_state(state_objective, step):
 
 
 def BFS_solution(E0):
-    # print("____________________________________________________")
 
     busca = BFS.BFS_algorithmcs(list_action_function=listarAcoes, execute_action_function=executarAcao, hash_function=funcaoHash, cmp_function=cmpEstados)
     
-    # print("BFS solution: ")
-
     solution = busca.BFS(E0, Eobj)
     solution.E0 = decoding(solution.E0)
     solution.Ef = decoding(solution.Ef)
     solution.states = [decoding(x) for x in solution.states]
+    
+    return solution.states
 
-    # print(solution.actions)
-    # print(solution.states)
+def DFS_Iter_solution(E0):
+
+    busca = DFSIterative.DFS_algorithmcs(list_action_function=listarAcoes, execute_action_function=executarAcao, hash_function=funcaoHash, cmp_function=cmpEstados)
+    
+    solution = busca.DFS(E0, Eobj, 18)
+    solution.E0 = decoding(solution.E0)
+    solution.Ef = decoding(solution.Ef)
+    solution.states = [decoding(x) for x in solution.states]
+    
+    return solution.states
+
+def DFS_Recr_solution(E0):
+
+    busca = DFSRecursive.DFS_algorithmcs(list_action_function=listarAcoes, execute_action_function=executarAcao, hash_function=funcaoHash, cmp_function=cmpEstados)
+    
+    solution = busca.DFS(E0, Eobj, 18)
+    solution.E0 = decoding(solution.E0)
+    solution.Ef = decoding(solution.Ef)
+    solution.states = [decoding(x) for x in solution.states]
     
     return solution.states
 

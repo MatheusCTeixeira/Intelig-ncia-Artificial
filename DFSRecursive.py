@@ -4,6 +4,7 @@ from enum import Enum
 import Graph
 import Node
 import copy
+import solution
 
 class Result(Enum):
     SUCCESS = 1
@@ -61,26 +62,42 @@ class DFS_algorithmcs:
                             lambda new_node, old_node: new_node.level < old_node.level)
         
 
-        first_node = Node.node(state_origin, "$")
+        first_node = Node.node(state_origin, " ")
         graph.append(first_node)
 
         result = self.DFS_recursive(first_node, state_objective, lvl, graph)
         
         if result != Result.FAIL:
-            return self.trace_solution(result)
+            return self.trace_solution(state_origin, state_objective, result)
+            #return self.trace_solution(result)
         else:
             return []
 
     #--------------------------------------------------------------------------
 
-    def trace_solution(self, node):
-        solution = []
-        temp_node = node
+    def trace_solution(self, E0, Ef, node_solution):
+        actions = []
+        states = []
 
-        while (temp_node != None):
-            solution.insert(0, temp_node.action)
-            temp_node = temp_node.parent
+        if E0 == Ef:
+            actions.append(" ")
+            states.append(E0)           
+        else:
+            temp = node_solution
+            while temp != None:
+                states.insert(0, temp.state)
+                actions.insert(0, temp.action)
+                temp = temp.parent
 
-        return solution
+        return solution.solution(E0, Ef, actions, states)
+    #def trace_solution(self, node):
+    #    solution = []
+    #    temp_node = node
+#
+    #    while (temp_node != None):
+    #        solution.insert(0, temp_node.action)
+    #        temp_node = temp_node.parent
+#
+    #    return solution
 
     #--------------------------------------------------------------------------
