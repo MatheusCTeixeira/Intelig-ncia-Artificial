@@ -11,26 +11,31 @@ import copy
 import argparse
 
 import sys
+import math
+
+
+N = 5 # Ordem do tabuleiro
 
 def encoding(E):
+    mask = 2 ** N - 1
     value = 0
-    mask = 0b1111
     for line in E:
         for v in line:
-            value = (value << 4)
-            value = value | (mask & v)          
+            value = value << N
+            value = value | (mask & v)         
             
     return value
 
 def decoding(value):
     vl = value
-    mask = 0b1111
+    mask = 2 ** N - 1
+    mask_bitsize = math.ceil(math.log2(N**2))
     E = []
-    for j in range(0, 3):
+    for j in range(0, N):
         E.insert(0, [])
-        for i in range(0, 3):
+        for i in range(0, N):
             E[0].insert(0, (mask & vl))
-            vl = vl >> 4
+            vl = vl >> mask_bitsize
 
     return E
 
@@ -42,10 +47,11 @@ Eobj = encoding([ [0,1,2] ,  [3,4,5] , [6,7, 8]])
 
 #-- Procura a posição atual
 def posicaoAtual(Et):       
-    mask = 0b1111
-    for i in range(0, 9):
-        if (Et >> (i * 4)) & mask == 0:      
-            return (2 - math.floor(i  / 3), 2 - (i  % 3))
+    mask = 2 ** N - 1
+    mask_bitsize = math.ceil(math.log2(N**2))
+    for i in range(0, N ** 2):
+        if (Et >> (i * mask_bitsize)) & mask == 0:      
+            return ((N - 1) - math.floor(i  / N), (N - 1) - (i  % N))
         
 #------------------------------------------------
 
@@ -62,13 +68,13 @@ def listarAcoes(Et):
     if lin > 0:
         acoes_possiveis.append("up")
 
-    if lin < 2:
+    if lin < N - 1:
         acoes_possiveis.append("down")
 
     if col > 0: 
         acoes_possiveis.append("left")
 
-    if col < 2: 
+    if col < N - 1: 
         acoes_possiveis.append("right")
 
     return acoes_possiveis
@@ -153,7 +159,10 @@ def randomize_initial_state(state_objective, step):
 def BFS_solution(E0):
     # print("____________________________________________________")
 
-    busca = BFS.BFS_algorithmcs(list_action_function=listarAcoes, execute_action_function=executarAcao, hash_function=funcaoHash, cmp_function=cmpEstados)
+    busca = BFS.BFS_algorithmcs(list_action_function = listarAcoes,       \
+                                execute_action_function = executarAcao,   \
+                                hash_function = funcaoHash,               \
+                                cmp_function = cmpEstados)
     
     # print("BFS solution: ")
 
@@ -167,16 +176,21 @@ def BFS_solution(E0):
     
     return solution.states
 
-#parser = argparse.ArgumentParser()
-#parser.add_argument("-o", nargs="?", type=int, help="O formato do quebra-cabeça. Default = 3. Ex: 3, 4,... ")
-#parser.add_argument("-m", nargs="?", type=str, help="Algoritmo de busca. Default = BFS. Ex: BFS ou DFSI ou DFSR")
-#parser.add_argument("-E0", nargs="?", type=str, help="Estado inicio. Default/Ex: [[1, 2, 3], [4, 5, 6], [7, 8, 0]]\n")
-#parser.add_argument("-Ef", nargs="?", type=str, help="Estado fim. Default/Ex: [[1, 2, 3], [4, 5, 6], [7, 8, 0]]\n")
-#
-#sysargs = sys.argv[1:]
-#if len(sysargs) == 0:
-#    sysargs = ["-h"]
-#
-#
-#args = vars(parser.parse_args(sysargs))
-#print(args)
+###########################################################################################  
+##                                      Test                                             ##
+## Ex = [[  0,  1,  2,  3,  4],\                                                         ##                                                                                   
+##        [  5,  6,  7,  8,  9],\                                                        ##                                                
+##        [ 10, 11, 12, 13, 14],\                                                        ##                                                
+##        [ 15, 16, 17, 18, 19],\                                                        ##                                                
+##        [ 20, 21, 22, 23, 24] \                                                        ##                                                
+##       ]                                                                               ##
+##                                                                                       ##
+##  Eenc = encoding(Ex)                                                                  ##
+##  print(bin(Eenc))                                                                     ##
+##  print(decoding(Eenc))                                                                ##
+##  for i in range(0, 25):                                                               ##
+##      p2 = (math.floor(i/5), i % 5)                                                    ##
+##      print(p2)                                                                        ##
+##      Eenc = trocaPosicao(Eenc, posicaoAtual(Eenc), p2)                                ##
+##      print(listarAcoes(Eenc))                                                         ##
+###########################################################################################
