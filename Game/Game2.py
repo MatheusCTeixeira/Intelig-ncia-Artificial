@@ -127,16 +127,20 @@ class ControlButton(QPushButton):
             ControlButton.solution = DFS_Recr_solution(estado_atual)
 
         # ----------------------- Console -----------------------
-        print("Solução encontrada: ")
-        for i in range(len(self.solution)):
-            temp = self.solution[i]
-            print(" " * 5 + str(i).rjust(2, ' ') + " - " + str(temp))
-        print("-" * 60)
+        if len(self.solution) == 0: #Ocorre quando a profundidade é limitada
+            print("Não há solução")
+            print(" " * 5 + "-" * 12)
+        else:
+            print("Solução encontrada: ")
+            for i in range(len(self.solution)):
+                temp = self.solution[i]
+                print(" " * 5 + str(i).rjust(2, ' ') + " - " + str(temp))
+            print("-" * 60)
             
 
     def foward(self):
         
-        if ControlButton.solution == None:
+        if ControlButton.solution == None or len(ControlButton.solution) <= 1:
             return
 
         step = ControlButton.step       
@@ -158,7 +162,7 @@ class ControlButton(QPushButton):
 
 
     def back(self):
-        if ControlButton.solution == None:
+        if ControlButton.solution == None or len(ControlButton.solution) <= 1:
             return
 
         step = ControlButton.step       

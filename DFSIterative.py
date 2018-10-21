@@ -81,13 +81,13 @@ class DFS_algorithmcs:
             
             edge.extend(partial_edge)       
             
-        return []
+        return self.trace_solution(E0=state_origin, Ef=state_objective, node_solution=None)
 
     #--------------------------------------------------------------------------
 
     def trace_solution(self, E0, Ef, node_solution):
         actions = []
-        states = []
+        states = []            
 
         if E0 == Ef:
             actions.append(" ")

@@ -40,9 +40,10 @@ def DFS_Iter_solution(estado_inicial):
     estado_objetivo = encoding([[i*N + j for j in range(N)] for i in range(N)])
 
     solution = busca.DFS(estado_inicial, estado_objetivo, 18 - 5 * (N - 3))
+    
     solution.E0 = decoding(estado_inicial)
-    solution.Ef = decoding(estado_objetivo)
-    solution.states = [decoding(x) for x in solution.states]
+    solution.Ef = decoding(estado_objetivo)    
+    solution.states = [decoding(x) for x in solution.states]   
 
     return solution.states
 
@@ -59,8 +60,10 @@ def DFS_Recr_solution(estado_inicial):
     estado_objetivo = encoding([[i*N + j for j in range(N)] for i in range(N)])
 
     solution = busca.DFS(estado_inicial, estado_objetivo, 18 - 5 * (N - 3))
+    
     solution.E0 = decoding(estado_inicial)
-    solution.Ef = decoding(estado_objetivo)
+    solution.Ef = decoding(estado_objetivo)    
     solution.states = [decoding(x) for x in solution.states]
+    
 
     return solution.states

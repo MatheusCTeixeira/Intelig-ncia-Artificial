@@ -71,7 +71,7 @@ class DFS_algorithmcs:
             return self.trace_solution(state_origin, state_objective, result)
             #return self.trace_solution(result)
         else:
-            return []
+            return self.trace_solution(state_origin, state_objective, None)
 
     #--------------------------------------------------------------------------
 
