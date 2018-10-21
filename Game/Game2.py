@@ -25,9 +25,8 @@ class Piece(QLabel):
     """ Representa uma peça no tabuleiro """
     matrix_piece = []
 
-    def __init__(self, text, position, board, pieces):
-        super().__init__()
-        super().setText(text)
+    def __init__(self, position, board, pieces):
+        super().__init__()        
 
         self.position = position
         self.board = board
@@ -39,8 +38,8 @@ class Piece(QLabel):
         lbl2.setText(text)
   
     def update_pieces(self):         
-        for i in range(len(self.pieces)):
-            for j in range(len(self.pieces[0])):
+        for i in range(len(self.board)):
+            for j in range(len(self.board[0])):
                 self.pieces[i][j].setText(str(self.board[i][j]))
 
     def swap_map(self, pos1, pos2):
@@ -127,12 +126,14 @@ class ControlButton(QPushButton):
         elif selected_method == "DFS Recr.":
             ControlButton.solution = DFS_Recr_solution(estado_atual)
 
+        # ----------------------- Console -----------------------
         print("Solução encontrada: ")
         for i in range(len(self.solution)):
             temp = self.solution[i]
             print(" " * 5 + str(i).rjust(2, ' ') + " - " + str(temp))
         print("-" * 60)
             
+
     def foward(self):
         
         if ControlButton.solution == None:
@@ -151,8 +152,10 @@ class ControlButton(QPushButton):
 
         self.update_pieces()
 
+        # ----------------------- Console -----------------------
         print("Passo " + str(step) + "/" + str(len(solution) - 1))
         print("-" * 60)
+
 
     def back(self):
         if ControlButton.solution == None:
@@ -171,12 +174,14 @@ class ControlButton(QPushButton):
 
         self.update_pieces()
 
+        # ----------------------- Console -----------------------
         print("Passo " + str(step) + "/" + str(len(solution) - 1))
         print("-" * 60)
 
+
     def update_pieces(self):         
-        for i in range(len(self.pieces)):
-            for j in range(len(self.pieces[0])):
+        for i in range(len(self.board)):
+            for j in range(len(self.board[0])):
                 self.pieces[i][j].setText(str(self.board[i][j]))
 
     def swap_map(self, pos1, pos2):
@@ -196,7 +201,7 @@ class ChangeLayoutButton(QPushButton):
         self.order = order
         self.board = board
         self.pieces = pieces
-
+        
     def mouseReleaseEvent(self, event):
         N = int(self.order.currentText()[0]) # "NxN"[0] = N
         
@@ -204,17 +209,46 @@ class ChangeLayoutButton(QPushButton):
         self.change_pieces(N)
 
         self.update_pieces()
+
+        print("Tabuleiro: ")
+        for line in self.board:
+            for x in line:
+                print("%3d" % x, end='')
+            print()
+
+        print("-" * 60)
     
     def change_board(self, N):
-        pass
+        while len(self.board) < N:
+            self.board.append([])
+
+        while len(self.board) > N:
+            self.board.pop()
+
+        for line in self.board:
+            while len(line) < N:
+                line.append(0)
+            
+            while len(line) > N:
+                line.pop()
+
+        for i in range(len(self.board)):
+            for j in range(len(self.board[0])):
+                self.board[i][j] = i * N + j
 
     def change_pieces(self, N):
-        pass
-
-    def update_pieces(self):         
         for i in range(len(self.pieces)):
             for j in range(len(self.pieces[0])):
+                if i < N and j < N:
+                    self.pieces[i][j].setVisible(True)
+                else:
+                    self.pieces[i][j].setVisible(False)
+
+    def update_pieces(self):         
+        for i in range(len(self.board)):
+            for j in range(len(self.board[0])):
                 self.pieces[i][j].setText(str(self.board[i][j]))
+
    
 
 
@@ -224,14 +258,15 @@ class ChangeLayoutButton(QPushButton):
 class Game:
     """ Representa a interface do jogo """
 
-    def __init__(self, N):
+    def __init__(self, order):
         app = QApplication([])
         
-        self.N = N
+        self.order = order
+        self.board_order = 5
 
         vLayout = QVBoxLayout()
         vLayout.addWidget(QLabel("<h1><center>Quebra-Cabeça N Peças</center></h1>"))
-        vLayout.addWidget(self.create_board(self.N))
+        vLayout.addWidget(self.create_board())
         vLayout.addWidget(self.solution_methods())
         vLayout.addWidget(self.create_controls())
         vLayout.addWidget(self.change_layout())
@@ -249,32 +284,36 @@ class Game:
 
     #--------------------------------------------------------------------------#
 
-    def create_board(self, N):
+    def create_board(self):
         """ Cria o tabuleiro """
 
-        self.board = [[a+b*N for a in range(N)] for b in range(N)]
-        self.pieces = [[] for b in range(N)]
+        N = self.order
         piece_size = 50
+
+        self.board = [[a+b*N for a in range(N)] for b in range(N)]
+        self.pieces = [[] for b in range(self.board_order)]
+        self.graphical_board = QGridLayout()
         
-        grid = QGridLayout()
-        for i in range(len(self.board)):
-            for j in range(len(self.board[0])):
-                piece = Piece(str(self.board[i][j]), (i, j), self.board, self.pieces)
-                piece.setAlignment(QtCore.Qt.AlignCenter)
-                piece.setFont(QFont("source code pro", 20))
+        for i in range(self.board_order):
+            for j in range(self.board_order):
+                piece = Piece((i, j), self.board, self.pieces)
+                piece.setText(str(self.board[i][j]) if i < N and j < N else "N")
+                piece.setAlignment(QtCore.Qt.AlignCenter)                
                 piece.setFixedSize(piece_size, piece_size)
                 piece.setLineWidth(2)
+                piece.setVisible(True if i < N and j < N else False)
                 piece.setStyleSheet("border: 1px solid red;\
                                      background: yellow;   \
+                                     font-size:  18px;     \
+                                     font-weight: bold;    \
                                      border-radius: 2px;")
                                      
                 self.pieces[i].append(piece)    
-
-                grid.addWidget(piece, i, j)
+                self.graphical_board.addWidget(piece, i, j)
 
         pane = QWidget()
         pane.setStyleSheet("border: 1px solid black;")
-        pane.setLayout(grid)
+        pane.setLayout(self.graphical_board)
         return pane
 
     def solution_methods(self):
@@ -329,8 +368,7 @@ class Game:
         pane = QWidget()
         pane.setLayout(hbox)
 
-        return pane
-                
+        return pane                
 
     #--------------------------------------------------------------------------#
 
