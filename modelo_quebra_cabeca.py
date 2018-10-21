@@ -3,7 +3,9 @@ import DFSIterative
 import DFSRecursive
 import BFS
 
-import math
+from math import log2
+from math import ceil
+
 import time
 import random
 import copy
@@ -14,59 +16,73 @@ import sys
 import math
 
 
-N = 4  # Ordem do tabuleiro
+def find_order(value):
+    def calc_bit_length(N): return N ** 2 * ceil(log2(N ** 2))
+    value_bit_length = ceil(log2(value))
+    N = 1
+    diff = value_bit_length - calc_bit_length(N)
+
+    while diff > 7:
+        N += 1
+        diff = value_bit_length - calc_bit_length(N)
+
+    return N
 
 
-def encoding(E):
-    mask = 2 ** N - 1
+def encoding(estado_inicial):
+    N = len(estado_inicial)
+    mask_bitsize = math.ceil(math.log2(N**2))
+    mask = 2 ** mask_bitsize - 1
     value = 0
-    for line in E:
+
+    for line in estado_inicial:
         for v in line:
-            value = value << N
+            value = value << mask_bitsize
             value = value | (mask & v)
 
     return value
 
 
 def decoding(value):
+    N = find_order(value)
     vl = value
-    mask = 2 ** N - 1
     mask_bitsize = math.ceil(math.log2(N**2))
-    E = []
+    mask = 2 ** mask_bitsize - 1
+    estado = []
     for j in range(0, N):
-        E.insert(0, [])
+        estado.insert(0, [])
         for i in range(0, N):
-            E[0].insert(0, (mask & vl))
+            estado[0].insert(0, (mask & vl))
             vl = vl >> mask_bitsize
 
-    return E
+    return estado
 
 
 # --Estado inicial
-E0 = encoding([[1, 2, 3, 7], [0, 4, 5, 6], [8, 9, 10, 11], [12, 13, 14, 15]])
+#E0 = [[1, 2, 3, 4, 9], [5, 6, 7, 8, 14], [10, 11, 12, 13, 0], [15, 16, 17, 18, 19], [20, 21, 22, 23, 24]]
+#E0 = [[1, 2, 3, 7], [4, 5, 6, 11], [8, 9, 10, 0], [12, 13, 14, 15]]
+#E0 = [[1, 2, 5], [3, 4, 0], [6, 7, 8]]
 
-# --Estado final
-Eobj = encoding([[0, 1, 2, 3], [4, 5, 6, 7], [8, 9, 10, 11], [12, 13, 14, 15]])
 
 # -- Procura a posição atual
-
-
-def posicaoAtual(Et):
-    mask = 2 ** N - 1
-    mask_bitsize = math.ceil(math.log2(N**2))
+def posicaoAtual(estado):
+    N = find_order(estado)
+    mask_bitsize = ceil(log2(N**2))
+    mask = 2 ** mask_bitsize - 1
     for i in range(0, N ** 2):
-        if (Et >> (i * mask_bitsize)) & mask == 0:
+        if (estado >> (i * mask_bitsize)) & mask == 0:
             return ((N - 1) - math.floor(i / N), (N - 1) - (i % N))
 
 # ------------------------------------------------
 
 
 # --Lista todos as possiveis ações para determinado estado
-def listarAcoes(Et):
+def listarAcoes(estado):
+    N = find_order(estado)
 
     acoes_possiveis = []
 
-    posicao = posicaoAtual(Et)
+    posicao = posicaoAtual(estado)
 
     lin, col = posicao
 
@@ -87,8 +103,8 @@ def listarAcoes(Et):
 
 
 # --Troca duas posições
-def trocaPosicao(Et, p0, p1):
-    Etemp = decoding(Et)
+def trocaPosicao(estado, p0, p1):
+    Etemp = decoding(estado)
 
     l0, c0 = p0
     l1, c1 = p1
@@ -102,8 +118,8 @@ def trocaPosicao(Et, p0, p1):
 
 
 # --Executar ações
-def executarAcao(Et, acao):
-    posAt = posicaoAtual(Et)
+def executarAcao(estado, acao):
+    posAt = posicaoAtual(estado)
     lin, col = posAt
 
     if (acao == "up"):
@@ -115,7 +131,7 @@ def executarAcao(Et, acao):
     elif (acao == "right"):
         col = col + 1
 
-    Et = trocaPosicao(Et, posAt, (lin, col))
+    Et = trocaPosicao(estado, posAt, (lin, col))
 
     return Et
 
@@ -126,12 +142,12 @@ def executarAcao(Et, acao):
 # **** assim a comparação seria direta
 
 
-def cmpEstados(Ea, Eb):
+def comparar_estados(Ea, Eb):
     return Ea == Eb
 # ------------------------------------------------
 
 
-def funcaoHash(Et):
+def funcao_hash(Et):
     return Et % 50
 
 # ------------------------------------------------
@@ -161,43 +177,3 @@ def randomize_initial_state(state_objective, step):
     print("initial state: %s" % str(decoding(initial_state)))
     print("solution: %s" % str(solution))
     return initial_state
-
-
-def BFS_solution(E0):
-    # print("____________________________________________________")
-
-    busca = BFS.BFS_algorithmcs(list_action_function=listarAcoes,
-                                execute_action_function=executarAcao,
-                                hash_function=funcaoHash,
-                                cmp_function=cmpEstados)
-
-    # print("BFS solution: ")
-
-    solution = busca.BFS(E0, Eobj)
-    solution.E0 = decoding(solution.E0)
-    solution.Ef = decoding(solution.Ef)
-    solution.states = [decoding(x) for x in solution.states]
-
-    # print(solution.actions)
-    # print(solution.states)
-
-    return solution.states
-
-for x in BFS_solution(E0):
-    print(x)
-
-# Ex = [[  0,  1,  2,  3,  4],\
-##       [  5,  6,  7,  8,  9],\
-##       [ 10, 11, 12, 13, 14],\
-##       [ 15, 16, 17, 18, 19],\
-##       [ 20, 21, 22, 23, 24] \
-# ]
-##
-## Eenc = encoding(Ex)
-# print(bin(Eenc))
-# print(decoding(Eenc))
-# for i in range(0, 25):
-##     p2 = (math.floor(i/5), i % 5)
-# print(p2)
-##     Eenc = trocaPosicao(Eenc, posicaoAtual(Eenc), p2)
-# print(listarAcoes(Eenc))

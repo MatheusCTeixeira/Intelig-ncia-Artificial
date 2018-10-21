@@ -3,13 +3,13 @@ import sys
 sys.path.append("..")
 
 
-from model_Puzzle8Pieces_Benchmark import BFS_solution
-from model_Puzzle8Pieces_Benchmark import DFS_Iter_solution
-from model_Puzzle8Pieces_Benchmark import DFS_Recr_solution
+from algoritmos_de_busca_solucao import BFS_solution
+from algoritmos_de_busca_solucao import DFS_Iter_solution
+from algoritmos_de_busca_solucao import DFS_Recr_solution
 
 
-from model_Puzzle8Pieces_Benchmark import E0
-from model_Puzzle8Pieces_Benchmark import encoding
+#from model_Puzzle8Pieces_Benchmark import E0
+#from model_Puzzle8Pieces_Benchmark import encoding
 
 from PyQt5.QtWidgets import QWidget, QApplication, QGridLayout, QVBoxLayout, QHBoxLayout, QLabel, QComboBox, QPushButton
 from PyQt5.QtGui import QFont
@@ -117,7 +117,7 @@ class ControlButton(QPushButton):
         selected_method = str(self.method.currentText())
         print("Método de busca : " + selected_method)
 
-        estado_atual = encoding(self.board)
+        estado_atual = self.board
         ControlButton.step = 0
         if selected_method == "BFS":
             ControlButton.solution = BFS_solution(estado_atual)
