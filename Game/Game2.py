@@ -16,7 +16,7 @@ from PyQt5.QtGui import QFont
 from PyQt5 import QtCore
 
 
-from PyQt5.QtChart import QBarSeries, QBarSet, QChart, QChartView, QBarCategoryAxis
+#from PyQt5.QtChart import QBarSeries, QBarSet, QChart, QChartView, QBarCategoryAxis
 
 from random import randint
 
