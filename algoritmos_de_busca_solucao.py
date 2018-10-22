@@ -9,8 +9,11 @@ from modelo_quebra_cabeca import comparar_estados
 from modelo_quebra_cabeca import encoding
 from modelo_quebra_cabeca import decoding
 
+from time import time
+
 def BFS_solution(estado_inicial):
 
+    time_init = time()
     busca = BFS.BFS_algorithmcs(list_action_function=listarAcoes,
                                 execute_action_function=executarAcao,
                                 hash_function=funcao_hash,
@@ -24,12 +27,16 @@ def BFS_solution(estado_inicial):
     solution.E0 = decoding(estado_inicial)
     solution.Ef = decoding(estado_objetivo)
     solution.states = [decoding(x) for x in solution.states]
+    solution.duration = time() - time_init
+    solution.deepth = busca.graph.branching_factor()
+    solution.width = busca.graph.deepth_factor()
 
-    return solution.states
+    return solution
 
 
 def DFS_Iter_solution(estado_inicial):
 
+    time_init = time()
     busca = DFSIterative.DFS_algorithmcs(list_action_function=listarAcoes,
                                          execute_action_function=executarAcao,
                                          hash_function=funcao_hash,
@@ -44,12 +51,17 @@ def DFS_Iter_solution(estado_inicial):
     solution.E0 = decoding(estado_inicial)
     solution.Ef = decoding(estado_objetivo)    
     solution.states = [decoding(x) for x in solution.states]   
+    solution.duration = time() - time_init
+    solution.deepth = busca.graph.branching_factor()
+    solution.width = busca.graph.deepth_factor()
 
-    return solution.states
+
+    return solution
 
 
 def DFS_Recr_solution(estado_inicial):
 
+    time_init = time()
     busca = DFSRecursive.DFS_algorithmcs(list_action_function=listarAcoes,
                                          execute_action_function=executarAcao,
                                          hash_function=funcao_hash,
@@ -64,6 +76,8 @@ def DFS_Recr_solution(estado_inicial):
     solution.E0 = decoding(estado_inicial)
     solution.Ef = decoding(estado_objetivo)    
     solution.states = [decoding(x) for x in solution.states]
-    
+    solution.duration = time() - time_init
+    solution.deepth = busca.graph.branching_factor()
+    solution.width = busca.graph.deepth_factor()    
 
-    return solution.states
+    return solution

@@ -67,6 +67,9 @@ class graph:
         else:
             return 0
 
+    def deepth_factor(self):
+        return len(self.graphs)
+
     def state_exists(self, node, stat = False):  
         state = node.state 
         hash_value = self.hash_function(state)     

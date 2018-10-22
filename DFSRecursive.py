@@ -21,7 +21,7 @@ class DFS_algorithmcs:
 
     #--------------------------------------------------------------------------
 
-    def DFS_recursive(self, node, state_objective, lvl, graph):   
+    def DFS_recursive(self, node, state_objective, lvl):   
         #Test solution
         if (self.cmp_function(node.state, state_objective) == True):            
             return node
@@ -44,10 +44,10 @@ class DFS_algorithmcs:
             new_node = Node.node(new_state, action, node)
             
             #Return if the node is new or not in the graph
-            is_new_state = graph.append(new_node)
+            is_new_state = self.graph.append(new_node)
 
             if (is_new_state == True):                                   
-                result = self.DFS_recursive(new_node, state_objective, lvl - 1, graph)
+                result = self.DFS_recursive(new_node, state_objective, lvl - 1)
                 if result != Result.FAIL:
                     return result
                     
@@ -58,14 +58,14 @@ class DFS_algorithmcs:
     def DFS(self, state_origin, state_objective, lvl):
         #Create the graph
         #Prefer the node with lowest level
-        graph = Graph.graph(self.hash_function, self.cmp_function, \
+        self.graph = Graph.graph(self.hash_function, self.cmp_function, \
                             lambda new_node, old_node: new_node.level < old_node.level)
         
 
         first_node = Node.node(state_origin, " ")
-        graph.append(first_node)
+        self.graph.append(first_node)
 
-        result = self.DFS_recursive(first_node, state_objective, lvl, graph)
+        result = self.DFS_recursive(first_node, state_objective, lvl)
         
         if result != Result.FAIL:
             return self.trace_solution(state_origin, state_objective, result)

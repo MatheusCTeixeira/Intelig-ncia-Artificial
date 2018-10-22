@@ -1,4 +1,4 @@
-
+from math import inf
 
 class solution:
     """ Esta classe serve para padronizar as soluções retornadas pelos algoritmos de busca  """
@@ -8,3 +8,6 @@ class solution:
         self.Ef = Ef
         self.actions = actions
         self.states = states
+        self.duration = inf
+        self.width = inf
+        self.deepth = inf

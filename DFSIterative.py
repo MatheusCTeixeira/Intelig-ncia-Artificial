@@ -32,16 +32,16 @@ class DFS_algorithmcs:
     def DFS(self, state_origin, state_objective, lvl):
         #Create the graph
         #Prefer the node with lowest level
-        graph = Graph.graph(self.hash_function, self.cmp_function,\
+        self.graph = Graph.graph(self.hash_function, self.cmp_function,\
                             lambda new_node, old_node: new_node.level < old_node.level)
 
-        graph.reset()
+        self.graph.reset()
 
         #Create the first node
         node = Node.node(state_origin, "")
 
         #And add it to graph
-        graph.append(node)
+        self.graph.append(node)
 
         #Initializes the border
         edge = [node]
@@ -68,7 +68,7 @@ class DFS_algorithmcs:
                 new_node = Node.node(new_state, action, node)
 
                 #Verify if the state is new or not
-                is_new_state = graph.append(new_node)
+                is_new_state = self.graph.append(new_node)
 
                 #Add to edge
                 if (new_node.level <  lvl and is_new_state == True):
