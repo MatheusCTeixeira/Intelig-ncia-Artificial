@@ -2,6 +2,7 @@
 import Node
 import Graph
 import bisect
+import solution
 
 
 
@@ -24,61 +25,67 @@ class A_Star:
         return self.id
 
     #@It's function execute the algorithmic and return the solution, if any
-    #@initial_state: It's expected a state of form (State, Cost, Heuristic)
+    #@initial_state: It's expected a state of form [State, Cost, Heuristic]
     #@objective_state: It's have the same form of the above param and represent the objective, ie, the final state
     def A_Star(self, initial_state, objective_state):
         self.graph = Graph.graph(self.hash_function, self.cmp_function, \
-                        lambda new_node, old_node: new_node.cost_heuristic < old_node.cost_heuristic)        
+                        lambda new_node, old_node: new_node.cost_heuristic > old_node.cost_heuristic)        
 
-        f, first_node = initial_state[1] + initial_state[2], Node.node(initial_state, "$") #f is the sum of cost and heuristic
-        first_node.cost_heuristic = f
+        first_node = Node.node(initial_state, " ") #f is the sum of cost and heuristic
+        first_node.cost_heuristic = initial_state[1] + initial_state[2]
         self.graph.append(first_node)
-        edge = [(f, first_node)]        
+        edge = [(first_node.cost_heuristic, first_node)]        
 
         solution = False
         while len(edge) > 0:
-            f, current_node = edge.pop()
 
+            f, current_node = edge.pop()            
+            
             if self.cmp_function(current_node.state[0], objective_state[0]) == True:
                 solution = current_node
                 break
 
-            actions = self.list_action_function(current_node.state)
+            actions = self.list_action_function(current_node.state[0])
 
             for action in actions:
-                new_state = self.execute_action_function(current_node.state, action)
-                new_state[1] += current_node.state[1] #Sum the cost
-                new_node = Node.node(new_state, action, current_node)
+                new_state = self.execute_action_function(current_node.state[0], action)
                 
-                #Attach f to node
-                f_new = new_state[1] + new_state[2]
-                new_node.cost_heuristic = f_new
+                new_state[1] += current_node.state[1] #Sum the cost
+
+                new_node = Node.node(new_state, action, current_node)
+                new_node.cost_heuristic = new_state[1] + new_state[2]  #Attach f to node              
 
                 is_new_state = self.graph.append(new_node)
 
                 if (is_new_state == True):
-                    edge.append((f_new, new_node))
+                    edge.append((new_node.cost_heuristic, new_node))
 
-            edge.sort(key = lambda v: v[0], reverse=True) #Order the edge by the lowest f's first        
-        
-        return self.trace_solution(solution)
+            if (len(edge) > 10):
+                edge = edge[len(edge)-5:]
+            edge.sort(key = lambda v: v[0], reverse=True) #Order the edge by the lowest f's first       
+
+                    
+        return self.trace_solution(initial_state, objective_state, solution)
         
     #   It's function trace the solution from node parent's and return a list with 
     #   all nodes from initial state to objective state, if there is a solution
     #
     # @node: This parameter is the node where the state is the objective    
-    def trace_solution(self, node):
-        solution = []
+    def trace_solution(self, E0, Ef, node_solution):
+        actions = []
+        states = []
 
-        if type(node) is not Node.node:
-            return solution
+        if E0 == Ef:
+            actions.append(" ")
+            states.append(E0)           
+        else:
+            temp = node_solution
+            while temp != None:
+                states.insert(0, temp.state)
+                actions.insert(0, temp.action)
+                temp = temp.parent
 
-        temp_node = node
-        while temp_node != None:
-            solution.insert(0, temp_node.action)
-            temp_node = temp_node.parent
-
-        return solution
+        return solution.solution(E0, Ef, actions, states)
 
             
 

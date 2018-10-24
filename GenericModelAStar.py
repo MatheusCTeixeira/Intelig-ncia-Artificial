@@ -21,27 +21,41 @@ Movimentos = {"A":[["B", 3, 3], ["C", 2, 2]],\
 }
 
 #--Lista todos as possiveis ações para determinado estado
+#----@Et o estado no qual se quer listar as ações
+#----@Retorna uma lista com os estados possiveis
 def listarAcoes(Et):
+    acoesPossiveis = []
 
     #Todos os movimentos possíveis a partir deste nó
-    acoesPossiveis = Movimentos[Et[0]]
+    for item in Movimentos[Et]:
+        acoesPossiveis.append(item[0])
 
     return acoesPossiveis
 #------------------------------------------------
 
 #--Executar ações
+#----@Et: o estado atual
+#----@acao: a ação a se aplicar
+#----@Retorna uma lista na forma [Estado alcançado, custo, heuristica ]
 def executarAcao( Et, acao):
+    
+    for item in Movimentos[Et]:        
+        if item[0] == acao:
+            return item
 
-    return acao
+    return None
            
 #------------------------------------------------
 
 #--Compara igualdade de estados
-# **** É possivel associar um inteiro a cada estado e
-# **** assim a comparação seria direta
+#----É possivel associar um inteiro a cada estado e
+#----assim a comparação seria direta
+#----@Ea: estado 1
+#----@Eb: estado 2
+#----@Retorna True se Ea == Eb e False caso contrário
 def cmpEstados(Ea, Eb):
      
-    return Ea[0] == Eb[0]
+    return Ea == Eb
 #------------------------------------------------
 
 def funcaoHash(Ea):

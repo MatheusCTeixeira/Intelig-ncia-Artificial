@@ -6,6 +6,7 @@ sys.path.append("..")
 from algoritmos_de_busca_solucao import BFS_solution
 from algoritmos_de_busca_solucao import DFS_Iter_solution
 from algoritmos_de_busca_solucao import DFS_Recr_solution
+from algoritmos_de_busca_solucao import HC_solution
 
 
 #from model_Puzzle8Pieces_Benchmark import E0
@@ -141,12 +142,13 @@ class ControlButton(QPushButton):
             solution = DFS_Iter_solution(estado_atual)
         elif selected_method == "DFS Recr.":
             solution = DFS_Recr_solution(estado_atual)
+        #elif selected_method == "HC": 
+        #    solution = HC_solution(estado_atual)
       
         self.series[selected_method][0] = solution.duration
         self.series[selected_method][1] = solution.deepth
         self.series[selected_method][2] = solution.width
-        
-        
+                
         ControlButton.solution = solution.states
 
         # ----------------------- Console -----------------------
@@ -410,6 +412,8 @@ class Game:
         """ Exibe os resultados para comparação entre os métodos """        
         names = ["BFS", "DFS Iter.", "DFS Recr."]
 
+        # names = ["BFS", "DFS Iter.", "DFS Recr.", "HC"]
+
         self.series = {}
         
         
@@ -426,6 +430,7 @@ class Game:
         red_patch = mpatches.Patch(color='red', label='BFS')
         blue_patch = mpatches.Patch(color='blue', label='DFS Iter.')
         green_patch = mpatches.Patch(color='green', label='DFS Rerc.')
+        # yellow_patch = mpatches.Patch(color='yellow', label='HC')
 
         self.plot.legend(handles=[red_patch, blue_patch, green_patch])
         
