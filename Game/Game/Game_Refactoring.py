@@ -1,9 +1,16 @@
 
 from enum import Enum
 
+from copy import deepcopy
+
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QGridLayout, QVBoxLayout, QHBoxLayout
-from PyQt5.QtWidgets import QComboBox,QSizePolicy
+from PyQt5.QtWidgets import QComboBox, QSlider
+from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
+
+import os
+BASE_DIR = os.path.dirname(os.path.realpath(__file__))
+
 
 class BoardMode(Enum):
     EDIT_MODE = 1
@@ -12,14 +19,16 @@ class BoardMode(Enum):
 
 class Board(QWidget):
     def __init__(self, max_order):        
-        self.board_size = 450
+        self.board_size = 300
         self.max_order = max_order
         self.current_order = max_order
         self.mode = BoardMode.PLAY_MODE
         self.unused_values = []
+        self.max_tolerable_solution_depth = 8
 
         self.logic_board = self.create_logic_board(self.current_order)
         self.graphic_board = self.create_graphic_board()
+        self.set_final_state()
         self.graphic_edit_board = self.create_graphic_edit_board()
         self.all_widgets = {}
 
@@ -35,7 +44,7 @@ class Board(QWidget):
                 button = QPushButton()     
                 button.setFixedSize(self.board_size/self.current_order, self.board_size/self.current_order)    
                 button.setVisible(valid_button)    
-                button.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)     
+                    
                 button.clicked.connect(lambda arg, coord=(i, j): self.piece_click(coord))
                 button.setText(str(i * self.current_order + j) if valid_button else " ")
                 buttons[i].append(button)
@@ -151,6 +160,7 @@ class Board(QWidget):
         
         self.current_order = order
         self.logic_board = self.create_logic_board(order)
+        self.set_final_state()
        
         self.update_graphic_board()
 
@@ -172,6 +182,7 @@ class Board(QWidget):
         elif j - 1 >= 0 and self.logic_board[i][j - 1] == 0: #left
             self.logic_board[i][j] = self.logic_board[i][j - 1]
             self.logic_board[i][j - 1] = current_value
+
         elif j + 1 < self.current_order and self.logic_board[i][j + 1] == 0: #right
             self.logic_board[i][j] = self.logic_board[i][j + 1]
             self.logic_board[i][j + 1] = current_value
@@ -310,6 +321,106 @@ class Board(QWidget):
 
     #-------------------------------------------------------------------------------#
 
+    def set_final_state(self):
+        self.final_state = deepcopy(self.logic_board)
+ 
+    #-------------------------------------------------------------------------------#
+
+    def get_final_state(self):
+        return self.final_state
+
+    #-------------------------------------------------------------------------------#
+
+    def graphic_final_state(self):
+        button = QPushButton()
+        button.setText("&Set &Final &State")
+        button.clicked.connect(lambda arg: self.set_final_state())
+    
+        return button
+    
+    #-------------------------------------------------------------------------------#
+
+    def graphic_select_solution_method(self):
+        combobox = QComboBox()
+        combobox.addItems(["Selecione o método de busca","BFS", "DFS Iterativo", "DFS Recursivo"])
+        combobox.currentTextChanged\
+                .connect(lambda arg, method = combobox: self.find_solution(method))
+
+        return combobox
+
+    #-------------------------------------------------------------------------------#
+    
+    def find_solution(self, method):
+        if self.mode == BoardMode.UNSTABLE_MODE:
+            return
+
+              
+        self.mode = BoardMode.UNSTABLE_MODE      
+
+        method_selected = method.currentText()
+        print(method_selected + " " + str(self.max_tolerable_solution_depth))
+        print(self.logic_board)
+        print(self.final_state)
+        method.setCurrentIndex(0)
+        self.mode = BoardMode.PLAY_MODE
+
+    #-------------------------------------------------------------------------------#
+
+    def graphic_select_depth(self):
+        slider = QSlider()
+        slider.setRange(1, 30)
+        slider.setValue(self.max_tolerable_solution_depth)
+        slider.setOrientation(Qt.Horizontal)
+        slider.valueChanged\
+              .connect(lambda arg, comp = slider: self.selected_depth(comp))
+        
+        return slider
+
+    #-------------------------------------------------------------------------------#
+
+    def selected_depth(self, comp):        
+        self.max_tolerable_solution_depth = comp.value()
+
+    #-------------------------------------------------------------------------------#
+
+    def graphic_solution_iteraction(self):
+        back_step = QPushButton()
+        back_step.setIcon(QIcon(BASE_DIR + "/resources/left.png"))
+        back_step.clicked.connect(lambda arg: self.back_step_solution())
+
+        begin_step = QPushButton()
+        begin_step.setIcon(QIcon(BASE_DIR + "/resources/play.png"))
+        begin_step.clicked.connect(lambda arg: self.begin_step_solution())
+
+        foward_step = QPushButton()
+        foward_step.setIcon(QIcon(BASE_DIR + "/resources/right.png"))
+        foward_step.clicked.connect(lambda arg: self.foward_step_solution())
+
+        h_layout = QHBoxLayout()
+        h_layout.addWidget(back_step)
+        h_layout.addWidget(begin_step)
+        h_layout.addWidget(foward_step)
+
+        widget = QWidget()
+        widget.setLayout(h_layout)
+        return widget
+
+    #-------------------------------------------------------------------------------#
+
+    def back_step_solution(self):
+        print("back")
+    #-------------------------------------------------------------------------------#
+
+    def begin_step_solution(self):
+        print("begin")
+
+    #-------------------------------------------------------------------------------#
+
+    def foward_step_solution(self):
+        print("foward")
+
+    #-------------------------------------------------------------------------------#
+
 class Main:
     def __init__(self):
         
@@ -320,8 +431,12 @@ class Main:
         vBoxLayout = QVBoxLayout()        
         
         vBoxLayout.addWidget(board.widget_board())
+        vBoxLayout.addWidget(board.graphic_final_state())
         vBoxLayout.addWidget(board.graphic_board_mode())
         vBoxLayout.addWidget(board.graphic_order())
+        vBoxLayout.addWidget(board.graphic_select_depth())
+        vBoxLayout.addWidget(board.graphic_select_solution_method())
+        vBoxLayout.addWidget(board.graphic_solution_iteraction())
 
         window = QWidget()
         window.setWindowTitle("Quebra-Cabeça")
