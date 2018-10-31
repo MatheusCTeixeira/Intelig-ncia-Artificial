@@ -1,16 +1,22 @@
 
-from enum import Enum
+import sys
+import os
 
+sys.path.append("..")
+from algoritmos_de_busca_solucao import BFS_solution
+from algoritmos_de_busca_solucao import DFS_Iter_solution
+from algoritmos_de_busca_solucao import DFS_Recr_solution
+
+from enum import Enum
 from copy import deepcopy
 
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QGridLayout, QVBoxLayout, QHBoxLayout
-from PyQt5.QtWidgets import QComboBox, QSlider
-from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QComboBox, QSlider, QMessageBox, QLabel
+from PyQt5.QtGui     import QIcon
+from PyQt5.QtCore    import Qt
 
-import os
+
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
-
 
 class BoardMode(Enum):
     EDIT_MODE = 1
@@ -90,6 +96,15 @@ class Board(QWidget):
 
         self.update_board_visibility()
 
+        self.highlight_graphic_board()
+
+        if self.logic_board == self.final_state and hasattr(self, 'message'):
+            self.message.setText("\o/ solved :D")
+            for i in range(self.max_order):                
+                for j in range(self.max_order):
+                    if self.graphic_board[i][j].isVisible():                    
+                        self.graphic_board[i][j].setStyleSheet("background-color: yellow;")
+
     #-------------------------------------------------------------------------------#        
 
     def update_board_visibility(self):
@@ -101,6 +116,49 @@ class Board(QWidget):
                 self.graphic_edit_board[i][j]\
                     .setVisible(i < self.current_order and j < self.current_order and self.mode == BoardMode.EDIT_MODE)
 
+    #-------------------------------------------------------------------------------#
+
+    def list_possible_moves(self):
+        moves = []
+
+        zero_position = None
+        for i in range(self.current_order):
+            position_found = False
+            for j in range(self.current_order):
+                if self.logic_board[i][j] == 0:
+                    zero_position = (i, j)
+                    position_found = True
+                    break
+            if position_found:
+                break
+        
+        i, j = zero_position
+        if i > 0:
+            moves.append((i - 1, j))
+        if i < self.current_order - 1:
+            moves.append((i + 1, j))
+        if j > 0:
+            moves.append((i, j - 1))
+        if j < self.current_order - 1:
+            moves.append((i, j + 1))
+
+        return moves
+
+    #-------------------------------------------------------------------------------#
+
+    def highlight_graphic_board(self):
+        for i in range(self.max_order):                
+            for j in range(self.max_order):
+                if self.graphic_board[i][j].isVisible():
+                    if self.graphic_board[i][j].text() == "0":
+                        self.graphic_board[i][j].setStyleSheet("background-color: blue;")
+                    else:
+                        self.graphic_board[i][j].setStyleSheet("background-color: None;")
+                
+        for pos in self.list_possible_moves():
+            i, j = pos
+            self.graphic_board[i][j].setStyleSheet("background-color: aqua;")
+        
     #-------------------------------------------------------------------------------#
 
     def update_graphic_board_text(self):
@@ -218,6 +276,9 @@ class Board(QWidget):
 
         self.mode = BoardMode.EDIT_MODE if value else BoardMode.PLAY_MODE
         self.update_graphic_board()
+
+        mode = str(self.mode).split('.')[1]
+        self.message.setText("Board is in {0} mode".format(mode))
         
     #-------------------------------------------------------------------------------#
 
@@ -318,12 +379,14 @@ class Board(QWidget):
     def process_graphic_order(self, cbb):
         new_order = int(cbb.currentText()[0])
         self.set_order(new_order)  
+        self.message.setText("New order: [{0}x{0}]".format(new_order))
 
     #-------------------------------------------------------------------------------#
 
     def set_final_state(self):
-        self.final_state = deepcopy(self.logic_board)
- 
+        self.final_state = deepcopy(self.logic_board)          
+
+         
     #-------------------------------------------------------------------------------#
 
     def get_final_state(self):
@@ -334,7 +397,9 @@ class Board(QWidget):
     def graphic_final_state(self):
         button = QPushButton()
         button.setText("&Set &Final &State")
+
         button.clicked.connect(lambda arg: self.set_final_state())
+        button.clicked.connect(lambda arg, msg="final state changed": self.message.setText(msg))
     
         return button
     
@@ -358,28 +423,53 @@ class Board(QWidget):
         self.mode = BoardMode.UNSTABLE_MODE      
 
         method_selected = method.currentText()
-        print(method_selected + " " + str(self.max_tolerable_solution_depth))
-        print(self.logic_board)
-        print(self.final_state)
+        
+        self.solution = None
+        self.step = 0
+
+        self.message.setText("Search solution...")
+
+        if method_selected == "BFS":
+            self.solution = BFS_solution(self.logic_board, self.final_state)            
+        elif method_selected == "DFS Iterativo":
+            self.solution = DFS_Iter_solution(self.logic_board, self.final_state, self.max_tolerable_solution_depth)
+        elif method_selected == "DFS Recursivo":
+            self.solution = DFS_Recr_solution(self.logic_board, self.final_state, self.max_tolerable_solution_depth)
+
         method.setCurrentIndex(0)
+
+        message_solution = "solution found" if len(self.solution.states) > 0 else "solution unfound"
+        self.message.setText(method_selected + ": " + message_solution )
         self.mode = BoardMode.PLAY_MODE
 
     #-------------------------------------------------------------------------------#
 
     def graphic_select_depth(self):
+        label = QLabel()
+        label.setFixedWidth(25)
+        label.setText(str(self.max_tolerable_solution_depth).zfill(2))
+
         slider = QSlider()
         slider.setRange(1, 30)
         slider.setValue(self.max_tolerable_solution_depth)
         slider.setOrientation(Qt.Horizontal)
         slider.valueChanged\
-              .connect(lambda arg, comp = slider: self.selected_depth(comp))
-        
-        return slider
+              .connect(lambda arg, comp = slider, clbl = label: self.selected_depth(comp, clbl))
+
+        h_layout = QHBoxLayout()
+        h_layout.addWidget(slider)
+        h_layout.addWidget(label)
+
+        widget = QWidget()
+        widget.setLayout(h_layout)
+
+        return widget
 
     #-------------------------------------------------------------------------------#
 
-    def selected_depth(self, comp):        
+    def selected_depth(self, comp, lbl):        
         self.max_tolerable_solution_depth = comp.value()
+        lbl.setText(str(self.max_tolerable_solution_depth).zfill(2))
 
     #-------------------------------------------------------------------------------#
 
@@ -408,18 +498,50 @@ class Board(QWidget):
     #-------------------------------------------------------------------------------#
 
     def back_step_solution(self):
-        print("back")
+        self.step = max(self.step - 1, 0)
+        self.message.setText("Step Back [{0}/{1}]".format(self.step + 1, len(self.solution.states)))
+        
+        if self.solution != None:
+            self.set_logic_board(self.solution.states[self.step])
+        
+
     #-------------------------------------------------------------------------------#
 
     def begin_step_solution(self):
-        print("begin")
+        self.step = 0
+        self.message.setText("Step Begin [{0}/{1}]".format(self.step + 1, len(self.solution.states)))
+
+        if self.solution != None:
+            self.set_logic_board(self.solution.states[self.step])
 
     #-------------------------------------------------------------------------------#
 
     def foward_step_solution(self):
-        print("foward")
+        self.step = min(self.step + 1, len(self.solution.states) - 1)
+        self.message.setText("Step Foward [{0}/{1}]".format(self.step + 1, len(self.solution.states)))
+        
+        if self.solution != None:
+            self.set_logic_board(self.solution.states[self.step])
+
 
     #-------------------------------------------------------------------------------#
+
+    def graphic_status(self):
+        label = QLabel("status:")
+        label.setAlignment(Qt.AlignLeft)
+
+        self.message = QLabel()
+        self.message.setAlignment(Qt.AlignRight)
+        
+
+        h_layout = QHBoxLayout()
+        h_layout.addWidget(label)
+        h_layout.addWidget(self.message)
+
+        window = QWidget()
+        window.setLayout(h_layout)
+
+        return window
 
 class Main:
     def __init__(self):
@@ -437,6 +559,7 @@ class Main:
         vBoxLayout.addWidget(board.graphic_select_depth())
         vBoxLayout.addWidget(board.graphic_select_solution_method())
         vBoxLayout.addWidget(board.graphic_solution_iteraction())
+        vBoxLayout.addWidget(board.graphic_status())
 
         window = QWidget()
         window.setWindowTitle("Quebra-Cabeça")
