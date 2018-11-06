@@ -7,6 +7,9 @@ from algoritmos_de_busca_solucao import BFS_solution
 from algoritmos_de_busca_solucao import DFS_Iter_solution
 from algoritmos_de_busca_solucao import DFS_Recr_solution
 
+from algoritmos_de_busca_solucao_informada import AStar_H1_solution
+from algoritmos_de_busca_solucao_informada import AStar_H2_solution
+
 from enum import Enum
 from copy import deepcopy
 
@@ -407,7 +410,8 @@ class Board(QWidget):
 
     def graphic_select_solution_method(self):
         combobox = QComboBox()
-        combobox.addItems(["Selecione o método de busca","BFS", "DFS Iterativo", "DFS Recursivo"])
+        combobox.addItems([ "Selecione o método de busca","BFS", "DFS Iterativo", "DFS Recursivo",\
+                            "A* + peças fora do local", "A* + distância de manhattan"])
         combobox.currentTextChanged\
                 .connect(lambda arg, method = combobox: self.find_solution(method))
 
@@ -418,7 +422,6 @@ class Board(QWidget):
     def find_solution(self, method):
         if self.mode == BoardMode.UNSTABLE_MODE:
             return
-
               
         self.mode = BoardMode.UNSTABLE_MODE      
 
@@ -428,13 +431,17 @@ class Board(QWidget):
         self.step = 0
 
         self.message.setText("Search solution...")
-
+        
         if method_selected == "BFS":
             self.solution = BFS_solution(self.logic_board, self.final_state)            
         elif method_selected == "DFS Iterativo":
             self.solution = DFS_Iter_solution(self.logic_board, self.final_state, self.max_tolerable_solution_depth)
         elif method_selected == "DFS Recursivo":
             self.solution = DFS_Recr_solution(self.logic_board, self.final_state, self.max_tolerable_solution_depth)
+        elif method_selected == "A* + peças fora do local":
+            self.solution = AStar_H1_solution(self.logic_board, self.final_state)
+        elif method_selected == "A* + distância de manhattan":
+            self.solution = AStar_H2_solution(self.logic_board, self.final_state)
 
         method.setCurrentIndex(0)
 

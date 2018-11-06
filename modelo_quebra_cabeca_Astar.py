@@ -60,36 +60,44 @@ def decoding(value):
 # --Estado inicial
 #E0 = [[1, 2, 3, 4, 9], [5, 6, 7, 8, 14], [10, 11, 12, 13, 0], [15, 16, 17, 18, 19], [20, 21, 22, 23, 24]]
 #E0 = [[1, 2, 3, 7], [4, 5, 6, 11], [8, 9, 10, 0], [12, 13, 14, 15]]
-E0 = [ [3,4,5] , [7,1,0] , [2,8,6]]
+E0 = [[2, 3, 7], [5, 4, 8], [0, 6, 1]]
 #E0 = [[8, 1, 2], [3, 4, 5], [6, 7, 0]]
-Eobj = [[0, 1, 2], [3, 4, 5], [6, 7, 8]]
+Eobj = [[1, 2, 3], [4, 5, 6], [7, 8, 0]]
 
 
-def heuristica_1(estado):
+def heuristica_peca_fora_do_lugar(estado, estado_objetivo):
     estado = decoding(estado)
-    N = len(estado)
-    value = 0
+    estado_objetivo = decoding(estado_objetivo)
 
-    for i in range(N):
-        for j in range(N):
-            if estado[i][j] != i * N + j:
-                value += 1
+    result = 0
+    for i in range(len(estado)):
+        for j in range(len(estado[0])):
+            if estado[i][j] !=  estado_objetivo[i][j]:
+                result += 1
     
-    return value
+    return result - 1
 
-def heuristica_2(estado):
+def heuristica_distancia_de_manhattan(estado, estado_objetivo):
     estado = decoding(estado)
-    N = len(estado)
-    value = 0
+    estado_objetivo = decoding(estado_objetivo)
 
-    for i in range(N):
-        for j in range(N):
-            peca_no_local = estado[i][j]
-            erro_linha =  abs(i - floor(peca_no_local/N))
-            erro_coluna = abs(j - peca_no_local % N)
-            value += erro_linha + erro_coluna
+    map_obj = {}
+    for i, line in enumerate(estado_objetivo):
+        for j, value in enumerate(line):
+            map_obj.update({value:(i,j)})
     
-    return value
+    result = 0
+    for i in range(len(estado)):
+        for j in range(len(estado[0])):            
+            value = estado[i][j]
+            if value == 0:
+                continue
+
+            i_f, j_f = map_obj.get(value)
+            result += abs(i - i_f) + abs(j - j_f)
+
+    return result
+
 
 # -- Procura a posição atual
 def posicaoAtual(estado):
@@ -160,7 +168,7 @@ def executarAcao(estado, acao):
 
     Et = trocaPosicao(estado, posAt, (lin, col))
 
-    return [Et, 0 , heuristica_2(estado)]
+    return [Et, 1]
 
 # ------------------------------------------------
 
@@ -175,13 +183,15 @@ def comparar_estados(Ea, Eb):
 
 
 def funcao_hash(Et):
-    return Et[0] % 50
+    return Et[0] % 160
 
 # ------------------------------------------------
 
+#print(heuristica_distancia_de_manhattan(encoding(E0), encoding(Eobj)))
 
-#busca = AStar.A_Star(list_action_function=listarAcoes, execute_action_function=executarAcao, \
-#                           hash_function = funcao_hash, cmp_function = comparar_estados)
+#busca = AStar.A_Star(   list_action_function=listarAcoes, execute_action_function=executarAcao, \
+#                        hash_function = funcao_hash, cmp_function = comparar_estados,\
+#                        heuristic_function=heuristica_distancia_de_manhattan)
 #
 #
 #for step in busca.A_Star([encoding(E0), 0, 0], [encoding(Eobj), 0, 0]).actions:
