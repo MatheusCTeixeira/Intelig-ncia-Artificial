@@ -60,7 +60,6 @@ class DFS_algorithmcs:
         #Prefer the node with lowest level
         self.graph = Graph.graph(self.hash_function, self.cmp_function, \
                             lambda new_node, old_node: new_node.level < old_node.level)
-        
 
         first_node = Node.node(state_origin, " ")
         self.graph.append(first_node)
@@ -68,14 +67,14 @@ class DFS_algorithmcs:
         result = self.DFS_recursive(first_node, state_objective, lvl)
         
         if result != Result.FAIL:
-            return self.trace_solution(state_origin, state_objective, result)
+            return self.trace_solution(state_origin, state_objective, result, self.graph.num_nodes)
             #return self.trace_solution(result)
         else:
             return self.trace_solution(state_origin, state_objective, None)
 
     #--------------------------------------------------------------------------
 
-    def trace_solution(self, E0, Ef, node_solution):
+    def trace_solution(self, E0, Ef, node_solution, num_nodes = 0):
         actions = []
         states = []
 
@@ -89,7 +88,7 @@ class DFS_algorithmcs:
                 actions.insert(0, temp.action)
                 temp = temp.parent
 
-        return solution.solution(E0, Ef, actions, states)
+        return solution.solution(E0, Ef, actions, states, num_nodes)
     #def trace_solution(self, node):
     #    solution = []
     #    temp_node = node

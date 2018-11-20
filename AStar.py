@@ -66,14 +66,14 @@ class A_Star:
                     edge_index.insert(inserted_at_index, cost_more_heurist) 
                     edge.insert(inserted_at_index, new_node)
                     
-        self.graph.status()
-        return self.trace_solution(initial_state, objective_state, solution)
+        #self.graph.status()
+        return self.trace_solution(initial_state, objective_state, solution,self.graph.num_nodes)
         
     #   It's function trace the solution from node parent's and return a list with 
     #   all nodes from initial state to objective state, if there is a solution
     #
     # @node: This parameter is the node where the state is the objective    
-    def trace_solution(self, E0, Ef, node_solution):
+    def trace_solution(self, E0, Ef, node_solution, num_nodes = 0):
         actions = []
         states = []
 
@@ -87,7 +87,7 @@ class A_Star:
                 actions.insert(0, temp.action)
                 temp = temp.parent
 
-        return solution.solution(E0, Ef, actions, states)
+        return solution.solution(E0, Ef, actions, states, num_nodes)
 
             
 

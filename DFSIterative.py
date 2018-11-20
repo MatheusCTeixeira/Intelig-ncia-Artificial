@@ -76,7 +76,8 @@ class DFS_algorithmcs:
 
                 #Test solution
                 if (self.cmp_function(new_state, state_objective) == True):
-                    return self.trace_solution(E0=state_origin, Ef=state_objective, node_solution=new_node)
+                    return self.trace_solution(E0=state_origin, Ef=state_objective, \
+                                                node_solution=new_node, num_nodes=self.graph.num_nodes)
 
             
             edge.extend(partial_edge)       
@@ -85,7 +86,7 @@ class DFS_algorithmcs:
 
     #--------------------------------------------------------------------------
 
-    def trace_solution(self, E0, Ef, node_solution):
+    def trace_solution(self, E0, Ef, node_solution, num_nodes = 0):
         actions = []
         states = []            
 
@@ -99,7 +100,7 @@ class DFS_algorithmcs:
                 actions.insert(0, temp.action)
                 temp = temp.parent
 
-        return solution.solution(E0, Ef, actions, states)
+        return solution.solution(E0, Ef, actions, states, num_nodes)
 
     #def trace_solution(self, node):
     #    solution = []

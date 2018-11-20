@@ -21,6 +21,7 @@ class graph:
         self.hash_function = hash_function
         self.cmp_function = cmp_function
         self.disambiguation_function = disambiguation_function
+        self.num_nodes = 0
 
     def reset(self):
         self.graphs.clear()
@@ -47,6 +48,8 @@ class graph:
             self.graphs.append([])
               
         self.graphs[node.level].append(node)
+        
+        self.num_nodes += 1
   
         return True
 

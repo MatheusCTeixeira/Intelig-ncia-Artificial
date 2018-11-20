@@ -1,6 +1,8 @@
 
 import sys
 import os
+import datetime
+import time
 
 sys.path.append("..")
 from algoritmos_de_busca_solucao import BFS_solution
@@ -432,6 +434,8 @@ class Board(QWidget):
 
         self.message.setText("Search solution...")
         
+        start_time = datetime.datetime.now()
+
         if method_selected == "BFS":
             self.solution = BFS_solution(self.logic_board, self.final_state)            
         elif method_selected == "DFS Iterativo":
@@ -443,10 +447,16 @@ class Board(QWidget):
         elif method_selected == "A* + distância de manhattan":
             self.solution = AStar_H2_solution(self.logic_board, self.final_state)
 
+        elapsed_time = datetime.datetime.now() - start_time
+
         method.setCurrentIndex(0)
 
-        message_solution = "solution found" if len(self.solution.states) > 0 else "solution unfound"
-        self.message.setText(method_selected + ": " + message_solution )
+        message_solution = "Method: %s:\n"%(method_selected)
+        message_solution += "Solution: %s\n"%("Fold" if len(self.solution.states) > 0 else "Unfold")
+        message_solution += "Nodes: %d | Duration: %02d:%02d.%.03d\n"%\
+                                (self.solution.num_nodes, int(elapsed_time.seconds/60),\
+                                 elapsed_time.seconds, elapsed_time.microseconds)
+        self.message.setText(message_solution )
         self.mode = BoardMode.PLAY_MODE
 
     #-------------------------------------------------------------------------------#

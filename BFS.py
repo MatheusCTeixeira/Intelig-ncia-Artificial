@@ -15,7 +15,7 @@ class BFS_algorithmcs:
     
     #--------------------------------------------------------------------------#
 
-    def trace_solution(self, E0, Ef, node_solution):
+    def trace_solution(self, E0, Ef, node_solution, num_nodes):
         actions = []
         states = []
 
@@ -29,7 +29,7 @@ class BFS_algorithmcs:
                 actions.insert(0, temp.action)
                 temp = temp.parent
 
-        return solution.solution(E0, Ef, actions, states)
+        return solution.solution(E0, Ef, actions, states, num_nodes)
         
     #--------------------------------------------------------------------------#
 
@@ -68,6 +68,6 @@ class BFS_algorithmcs:
                     break
                 #solution_found = solution_found or self.cmp_function(state, state_objective)                
         
-        return  self.trace_solution(state_origin, state_objective, solution_found)
+        return  self.trace_solution(state_origin, state_objective, solution_found, self.graph.num_nodes)
 
         #--------------------------------------------------------------------------#

@@ -3,7 +3,7 @@ from math import inf
 class solution:
     """ Esta classe serve para padronizar as soluções retornadas pelos algoritmos de busca  """
     
-    def __init__(self, E0, Ef, actions, states):
+    def __init__(self, E0, Ef, actions, states, num_nodes):
         self.E0 = E0
         self.Ef = Ef
         self.actions = actions
@@ -11,3 +11,4 @@ class solution:
         self.duration = inf
         self.width = inf
         self.deepth = inf
+        self.num_nodes = num_nodes
