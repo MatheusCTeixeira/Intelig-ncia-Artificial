@@ -9,6 +9,7 @@ Nesta aplicação foi utilizado o **PyQt5** para fazer a interface gráfica. As 
 #### Interface
 
 <img src="Sample/Img_1.png" height="200"/>|<img src="Sample/Img_2.png" height="200"/>
+
 <img src="Sample/Img_3.png" height="200"/>|<img src="Sample/Img_4.png" height="200"/>
 
 ### Modos de jogo
