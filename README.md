@@ -8,9 +8,7 @@ Nesta aplicação foi utilizado o **PyQt5** para fazer a interface gráfica. As 
 
 #### Interface
 
-<img src="Sample/Img_1.png" height="300"/>|<img src="Sample/Img_2.png" height="300"/>
-
-<img src="Sample/Img_3.png" height="300"/>|<img src="Sample/Img_4.png" height="300"/>
+<img src="Sample/Img_1.png" height="300"/>|<img src="Sample/Img_2.png" height="300"/>|<img src="Sample/Img_3.png" height="300"/>|<img src="Sample/Img_4.png" height="300"/>
 
 ### Modos de jogo
 O jogo possui dois modos: "PLAY MODE" e "EDIT MODE". O primeiro significa que você pode mover as peças segundo as regras originais do jogo, isto é, para uma posição adjacente a peça que contém "0". Já o último, é possível mudar uma peça para qualquer posição desejada. A diferença entre os dois modos é que o primeiro tem uma grande probabilidade de haver solução (Eu não garanto pois não realizei nem uma pesquisa na litetura a respeito disso).
